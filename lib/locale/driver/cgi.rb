@@ -35,12 +35,10 @@ module Locale
         locales = Locale::TagList.new
 
         # QUERY_STRING "lang"
-        if cgi_.has_key?("lang")
-          langs = cgi_.params["lang"]
-          if langs
-            langs.each do |lang|
-              locales << Locale::Tag.parse(lang)
-            end
+        langs = cgi_.params["lang"]
+        if langs
+          langs.each do |lang|
+            locales << Locale::Tag.parse(lang)
           end
         end
 
