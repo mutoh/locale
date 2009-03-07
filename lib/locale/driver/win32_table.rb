@@ -1,7 +1,7 @@
 =begin
   win32_table.rb - Locale table for win32
 
-  Copyright (C) 2008 Masao Mutoh <mutoh@highway.ne.jp>
+  Copyright (C) 2008 Masao Mutoh <mutomasa at gmail.com>
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
