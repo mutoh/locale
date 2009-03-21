@@ -1,3 +1,8 @@
+= locale-2.0.0 (2009-03-21)
+ * Support Rack.
+ * move to github from svn.
+
+== Older format.
 2008-12-04  Masao Mutoh  <mutoh@highway.ne.jp>
 
 	* lib/locale/util/memoizable.rb: Modified. 
