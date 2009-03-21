@@ -8,8 +8,8 @@ require 'rake/gempackagetask'
 
 require 'locale/version'
 
-desc "Default Task"
-task :default => [ :test ]
+#desc "Default Task"
+#task :default => [ :test ]
 
 PKG_VERSION = Locale::VERSION
 
@@ -69,9 +69,10 @@ task :release => [ :package ] do
   require 'rubyforge'
 
   rubyforge = RubyForge.new
+  rubyforge.configure
   rubyforge.login
   rubyforge.add_release("locale", "locale",
-                        "Ruby-Locale #{PKG_VERSION}",
+                        PKG_VERSION,
                         "pkg/locale-#{PKG_VERSION}.gem",
                         "pkg/ruby-locale-#{PKG_VERSION}.tar.gz")
 end
