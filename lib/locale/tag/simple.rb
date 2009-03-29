@@ -1,12 +1,10 @@
 =begin
   locale/tag/simple.rb - Locale::Tag::Simple
 
-  Copyright (C) 2008  Masao Mutoh
+  Copyright (C) 2008,2009  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
-
-  $Id: simple.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
 require 'locale/util/memoizable'
@@ -22,6 +20,8 @@ module Locale
     # * ja-JP
     # * ja-392
     class Simple
+      include Util::Memoizable
+
       ALPHA = '[a-z]'
       DIGIT = '[0-9]'
       ALPHANUM = "[a-zA-Z0-9]"
@@ -40,17 +40,6 @@ module Locale
       # String.
       attr_accessor :tag
 
-      # Parse the language tag and return the new Locale::Tag::Simple. 
-      def self.parse(tag)
-        if tag =~ TAG_RE
-          ret = self.new($1, $2)
-          ret.tag = tag
-          ret
-        else
-          nil
-        end
-      end
-
       # call-seq:
       # to_common
       # to_posix
@@ -63,10 +52,25 @@ module Locale
           def to_#{name}
             convert_to(#{name.to_s.capitalize})
           end
-          memoize :to_#{name}
+          memoize_dup :to_#{name}
         EOS
       end
         
+      class << self
+        include Util::Memoizable
+        # Parse the language tag and return the new Locale::Tag::Simple. 
+        def parse(tag)
+          if tag =~ TAG_RE
+            ret = self.new($1, $2)
+            ret.tag = tag
+            ret
+          else
+            nil
+          end
+        end
+        memoize_dup :parse
+      end
+
       # Create a Locale::Tag::Simple
       def initialize(language, region = nil)
         raise "language can't be nil." unless language
@@ -79,10 +83,9 @@ module Locale
       #   <language>_<REGION>
       #   (e.g.) "ja_JP"
       def to_s
-        s = @language.dup
-        s << "_" << @region if @region
-        s
+        to_string
       end
+      memoize :to_s
 
       def to_str  #:nodoc:
         to_s
@@ -95,14 +98,17 @@ module Locale
       def eql?(other) #:nodoc:
         self.==(other)
       end
+      memoize :eql?
       
       def hash #:nodoc:
         "#{self.class}:#{to_s}".hash
       end
+      memoize :hash
 
       def inspect  #:nodoc:
         %Q[#<#{self.class}: #{to_s}>]
       end
+      memoize :inspect
 
       # For backward compatibility.
       def country; region end
@@ -128,17 +134,24 @@ module Locale
       def candidates
         [self.class.new(language, region), self.class.new(language)]
       end
+      memoize_dup :candidates
 
-      memoize :to_s, :to_str, :hash, :inspect, :candidates
-
-      # Conver to the klass(the class of Language::Tag)
+      # Convert to the klass(the class of Language::Tag)
       private
-      def convert_to(klass)
+      def convert_to(klass)  #:nodoc:
         if klass == Simple || klass == Posix
           klass.new(language, region)
         else
           klass.new(language, nil, region)
         end
+      end
+
+      # Return simple language tag which format is"<lanuguage>_<REGION>". 
+      # This is to use internal only. Use to_s instead.
+      def to_string  
+        s = @language.dup
+        s << "_" << @region if @region
+        s      
       end
     end
   end

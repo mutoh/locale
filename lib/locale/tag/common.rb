@@ -1,13 +1,13 @@
 =begin
   locale/tag/common.rb - Locale::Tag::Common
 
-  Copyright (C) 2008  Masao Mutoh
+  Copyright (C) 2008,2009  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
-
-  $Id: common.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
+
+require 'locale/tag/simple'
 
 module Locale
   module Tag
@@ -32,29 +32,33 @@ module Locale
 
       attr_reader :script, :variants
 
+      class << self
+        include Util::Memoizable
+        # Parse the language tag and return the new Locale::Tag::Common. 
+        def parse(tag)
+          if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
+            nil
+          elsif tag =~ TAG_RE
+            lang, script, region, subtag = $1, $2, $3, $4
+            variants = subtag.scan(/(^|[-_])#{VARIANT}(?=([-_]|$))/i).collect{|v| v[1]}
+            
+            ret = self.new(lang, script, region, variants)
+            ret.tag = tag
+            ret
+          else
+            nil
+          end
+        end
+        memoize_dup :parse
+      end
+
       # Create a Locale::Tag::Common.
       def initialize(language, script = nil, region = nil, variants = [])
         @script, @variants = script, variants
         @script.capitalize!  if @script
         super(language, region)
       end
-
-      # Parse the language tag and return the new Locale::Tag::Common. 
-      def self.parse(tag)
-        if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
-          nil
-        elsif tag =~ TAG_RE
-          lang, script, region, subtag = $1, $2, $3, $4
-          variants = subtag.scan(/(^|[-_])#{VARIANT}(?=([-_]|$))/i).collect{|v| v[1]}
-
-          ret = self.new(lang, script, region, variants)
-          ret.tag = tag
-          ret
-        else
-          nil
-        end
-      end
-
+      
       # Set the script (with capitalize)
       def script=(val)
         clear
@@ -67,21 +71,6 @@ module Locale
       def variants=(val)
         clear
         @variants = val
-      end
-
-      # Returns the common language tag with "_".
-      #   <language>_<Script>_<REGION>_VARIANTS1_VARIANTS2
-      #   (e.g.) "ja_Hira_JP_VARIANTS1_VARIANTS2"
-      def to_s
-        s = @language.dup
-    
-        s << "_" << @script if @script
-        s << "_" << @region if @region
-
-        @variants.each do |v|
-          s << "_#{v}"
-        end
-        s
       end
 
       # Returns an Array of tag-candidates order by priority.
@@ -99,9 +88,10 @@ module Locale
          self.class.new(language, nil, nil, variants),         #ja-FOO
          self.class.new(language)]                             #ja
       end
+      memoize_dup :candidates
 
       private
-      def convert_to(klass)
+      def convert_to(klass)  #:nodoc:
         if klass == Simple
           super
         elsif klass == Posix
@@ -116,6 +106,23 @@ module Locale
         else
           klass.new(language, script, region, variants)
         end
+      end
+
+      # Returns the common language tag with "_". 
+      #   <language>_<Script>_<REGION>_VARIANTS1_VARIANTS2
+      #   (e.g.) "ja_Hira_JP_VARIANTS1_VARIANTS2"
+      #
+      # This is used in internal only. Use to_s instead.
+      def to_string
+        s = @language.dup
+    
+        s << "_" << @script if @script
+        s << "_" << @region if @region
+
+        @variants.each do |v|
+          s << "_#{v}"
+        end
+        s
       end
     end
   end

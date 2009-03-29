@@ -1,4 +1,5 @@
 # Refer from activesupport-2.2.0.
+#
 # * Remove the dependecies to activesupport.
 # * change the key to hash value of args.
 # * Not Thread safe
@@ -43,33 +44,59 @@ module Locale
       # 
       # To clear cache, #clear_foo, #clear_bar is also defined.
       #
-      # (NOTE) Consider to use this with huge objects to avoid memory leaks.
+      # (NOTE) 
+      # * Consider to use this with huge objects to avoid memory leaks.
+      # * Can't use this with super.<method> because of infinity loop.
       def memoize(*symbols)
+        memoize_impl(false, symbols)
+      end
+
+      # memoize with dup. A copy object is returned.
+      def memoize_dup(*symbols)
+        memoize_impl(true, symbols)
+      end
+
+      def memoize_impl(is_dup, *symbols) #:nodoc:
         symbols.each do |symbol|
           original_method = "_unmemoized_#{symbol}"
           memoized_ivar = MEMOIZED_IVAR.call(symbol)
+          dup_meth = is_dup ? "_dup" : ""
+
           class_eval <<-EOS, __FILE__, __LINE__
-          raise "Already memoized #{symbol}" if method_defined?(:#{original_method})
-          alias #{original_method} #{symbol}
-
-          def #{symbol}(*args)
-            @_memoized_ivars ||= {}
-            @_memoized_ivars[:#{memoized_ivar}] ||= {}
-
-            key = args.hash
-
-            ret = @_memoized_ivars[:#{memoized_ivar}][key]
-
-            if ret
-              ret
-            else
-              @_memoized_ivars[:#{memoized_ivar}][key] = #{original_method}(*args).freeze
+            alias #{original_method} #{symbol}
+            def #{symbol}(*args)
+              _memoize#{dup_meth}(:#{memoized_ivar}, args.hash) do
+                #{original_method}(*args)
+              end
             end
-          end
-          
           EOS
         end
-      
+      end
+
+      def _memoize(ivar, key) #:nodoc:
+        @_memoized_ivars ||= {}
+        @_memoized_ivars[ivar] ||= {}
+
+        ret = @_memoized_ivars[ivar][key]
+        unless ret
+          ret = yield
+          ret.freeze
+          @_memoized_ivars[ivar][key] = ret 
+        end
+        ret
+      end
+
+      def _memoize_dup(ivar, key) #:nodoc:
+        ret = _memoize(ivar, key) do; yield; end
+        if ret
+          if ret.kind_of? Array
+            ret.map{|v| v.dup}.dup
+          else
+            ret.dup
+          end
+        else
+          nil
+        end
       end
     end
   end

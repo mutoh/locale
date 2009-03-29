@@ -27,12 +27,14 @@ module Locale
       def candidates
         [Illegular.new(tag)]
       end
+      memoize :candidates
 
       # Conver to the klass(the class of Language::Tag)
       private
       def convert_to(klass)
         klass.new(tag)
       end
+      memoize :convert_to
     end
   end
 end

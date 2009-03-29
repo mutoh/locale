@@ -1,13 +1,13 @@
 =begin
   locale/tag/cldr.rb - Locale::Tag::CLDR
 
-  Copyright (C) 2008  Masao Mutoh
+  Copyright (C) 2008,2009  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
-
-  $Id: cldr.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
+
+require 'locale/tag/common'
 
 module Locale #:nodoc:
   module Tag #:nodoc:
@@ -24,7 +24,34 @@ module Locale #:nodoc:
                   (?:@(#{EXTENSION};?)+)*)\Z/ix
 
       attr_reader :extensions
- 
+
+      class << self
+        include Util::Memoizable
+        # Parse the language tag and return the new Locale::Tag::CLDR. 
+        def parse(tag)
+          if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
+            nil
+          elsif tag =~ TAG_RE
+            lang, script, region, subtag = $1, $2, $3, $4
+            
+            extensions = {}
+            subtag.scan(/#{EXTENSION}/i).each{|v| 
+              subtag.sub!(v, "")
+              key, type = v.split("=")
+              extensions[key] = type
+            }
+            variants = subtag.scan(/#{VARIANT}/i).collect{|v| v[0].upcase}
+            
+            ret = self.new(lang, script, region, variants, extensions)
+            ret.tag = tag
+            ret
+          else
+            nil
+          end
+        end
+        memoize_dup :parse
+      end
+
       # Create Locale::Tag::Cldr.
       #
       # variants should be upcase.
@@ -34,39 +61,6 @@ module Locale #:nodoc:
         super(language, script, region, variants.map{|v| v.upcase})
       end
 
-      # Parse the language tag and return the new Locale::Tag::CLDR. 
-      def self.parse(tag)
-        if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
-          nil
-        elsif tag =~ TAG_RE
-          lang, script, region, subtag = $1, $2, $3, $4
-
-          extensions = {}
-          subtag.scan(/#{EXTENSION}/i).each{|v| 
-            subtag.sub!(v, "")
-            key, type = v.split("=")
-            extensions[key] = type
-          }
-          variants = subtag.scan(/#{VARIANT}/i).collect{|v| v[0].upcase}
-
-          ret = self.new(lang, script, region, variants, extensions)
-          ret.tag = tag
-          ret
-        else
-          nil
-        end
-      end
-
-      # Returns the language tag. 
-      # (e.g.) "ja_Hira_JP_VARIANT1_VARIANT2@foo1=var1;foo2=var2"
-      def to_s
-        s = super
-        if @extensions.size > 0
-          s << "@" << @extensions.to_a.sort.map{|k, v| "#{k}=#{v}"}.join(";")
-        end
-        s
-      end
-
       # Sets the extensions.
       def extensions=(val)
         clear
@@ -74,7 +68,7 @@ module Locale #:nodoc:
       end
 
       private
-      def convert_to(klass)
+      def convert_to(klass) # :nodoc:
         if klass == Cldr
           klass.new(language, script, region, variants, extensions)
         elsif klass == Rfc
@@ -87,6 +81,18 @@ module Locale #:nodoc:
         else
           super
         end
+      end
+
+      # Returns the language tag. 
+      # (e.g.) "ja_Hira_JP_VARIANT1_VARIANT2@foo1=var1;foo2=var2"
+      #
+      # This is used in internal only. Use to_s instead.
+      def to_string
+        s = super
+        if @extensions.size > 0
+          s << "@" << @extensions.to_a.sort.map{|k, v| "#{k}=#{v}"}.join(";")
+        end
+        s
       end
     end
   end

@@ -1,10 +1,10 @@
 =begin
+  tag.rb - Locale::Tag module
 
- tag.rb - Locale::Tag module
-
- Copyright (C) 2008  Masao Mutoh
+  Copyright (C) 2008,2009  Masao Mutoh
  
- $Id: tag.rb 27 2008-12-03 15:06:50Z mutoh $
+  You may redistribute it and/or modify it under the same
+  license terms as Ruby.
 =end
 
 require 'locale/tag/simple'
@@ -13,11 +13,13 @@ require 'locale/tag/common'
 require 'locale/tag/rfc'
 require 'locale/tag/cldr'
 require 'locale/tag/posix'
+require 'locale/util/memoizable'
 
 module Locale
 
   # Language tag / locale identifiers.
   module Tag
+    include Util::Memoizable
     module_function
     # Parse a language tag/locale name and return Locale::Tag
     # object.
@@ -31,6 +33,7 @@ module Locale
       end
       Locale::Tag::Illegular.new(tag)
     end
+    memoize :parse
   end
 end
 

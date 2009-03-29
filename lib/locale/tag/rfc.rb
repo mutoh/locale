@@ -1,13 +1,13 @@
 =begin
   locale/tag/rfc.rb - Locale::Tag::Rfc
 
-  Copyright (C) 2008  Masao Mutoh
+  Copyright (C) 2008,2009  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
-
-  $Id: rfc.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
+
+require 'locale/tag/common'
 
 module Locale #:nodoc:
   module Tag #:nodoc:
@@ -26,50 +26,42 @@ module Locale #:nodoc:
 
       attr_reader :extensions, :privateuse
 
+      class << self
+        include Util::Memoizable
+        # Parse the language tag and return the new Locale::Tag::Rfc. 
+        def parse(tag)
+          if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
+            nil
+          elsif tag =~ TAG_RE
+            lang, script, region, subtag = $1, $2, $3, $4
+            extensions = []
+            variants = []
+            if subtag =~ /#{PRIVATEUSE}/
+                subtag, privateuse = $`, $1
+              # Private use for CLDR.
+              if /x-ldml(.*)/ =~ privateuse
+                p_subtag = $1 
+                extensions = p_subtag.scan(/(^|-)#{EXTENSION}/i).collect{|v| p_subtag.sub!(v[1], ""); v[1]}
+                variants = p_subtag.scan(/(^|-)#{VARIANT}(?=(-|$))/i).collect{|v| v[1]}
+              end
+            end
+            extensions += subtag.scan(/(^|-)#{EXTENSION}/i).collect{|v| subtag.sub!(v[1], ""); v[1]}
+            variants += subtag.scan(/(^|-)#{VARIANT}(?=(-|$))/i).collect{|v| v[1]}
+            
+            ret = self.new(lang, script, region, variants, extensions, privateuse)
+            ret.tag = tag
+            ret
+          else
+            nil
+          end
+        end
+        memoize_dup :parse
+      end
+
       def initialize(language, script = nil, region = nil, variants = [],
-                     extensions = [], privateuse = nil)
+                   extensions = [], privateuse = nil)
         @extensions, @privateuse = extensions, privateuse
         super(language, script, region, variants)
-      end
-
-      # Parse the language tag and return the new Locale::Tag::Common. 
-      def self.parse(tag)
-        if tag =~ /\APOSIX\Z/  # This is the special case of POSIX locale but match this regexp.
-          nil
-        elsif tag =~ TAG_RE
-          lang, script, region, subtag = $1, $2, $3, $4
-          extensions = []
-          variants = []
-          if subtag =~ /#{PRIVATEUSE}/
-            subtag, privateuse = $`, $1
-            # Private use for CLDR.
-            if /x-ldml(.*)/ =~ privateuse
-              p_subtag = $1 
-              extensions = p_subtag.scan(/(^|-)#{EXTENSION}/i).collect{|v| p_subtag.sub!(v[1], ""); v[1]}
-              variants = p_subtag.scan(/(^|-)#{VARIANT}(?=(-|$))/i).collect{|v| v[1]}
-            end
-          end
-          extensions += subtag.scan(/(^|-)#{EXTENSION}/i).collect{|v| subtag.sub!(v[1], ""); v[1]}
-          variants += subtag.scan(/(^|-)#{VARIANT}(?=(-|$))/i).collect{|v| v[1]}
-          
-          ret = self.new(lang, script, region, variants, extensions, privateuse)
-          ret.tag = tag
-          ret
-        else
-          nil
-        end
-      end
-
-      # Returns the language tag 
-      #   <language>-<Script>-<REGION>-<variants>-<extensions>-<PRIVATEUSE>
-      #   (e.g.) "ja-Hira-JP-variant"
-      def to_s
-        s = super.to_s.gsub(/_/, "-")
-        @extensions.each do |v|
-          s << "-#{v}"
-        end
-        s << "-#{@privateuse}" if @privateuse
-        s
       end
 
       # Sets the extensions.
@@ -100,7 +92,21 @@ module Locale #:nodoc:
           super
         end
       end
-      
+
+      # Returns the language tag 
+      #   <language>-<Script>-<REGION>-<variants>-<extensions>-<PRIVATEUSE>
+      #   (e.g.) "ja-Hira-JP-variant"
+      #
+      # This is used in internal only. Use to_s instead.
+      def to_string
+        s = super.gsub(/_/, "-")
+        @extensions.each do |v|
+          s << "-#{v}"
+        end
+        s << "-#{@privateuse}" if @privateuse
+        s
+      end
+
     end
   end
 end
