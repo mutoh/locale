@@ -117,7 +117,15 @@ class TestMemoizable < Test::Unit::TestCase
   def test_freeze_or_dup
     t = E.new
     assert_equal "aa", t.test2
-    assert_raise(TypeError){ t.test2 << "a" }
+    # When modification attempted on frozen objects,
+    # ruby 1.9 raises RuntimeError instead of TypeError.
+    # http://redmine.ruby-lang.org/issues/show/409
+    # http://redmine.ruby-lang.org/repositories/diff/ruby-19/error.c?rev=7294
+    if RUBY_VERSION < '1.9.0'
+      assert_raise(TypeError){ t.test2 << "a" }
+    else
+      assert_raise(RuntimeError){ t.test2 << "a" }
+    end
     assert_equal "bb", t.test2_dup
     assert_equal "bbb", t.test2_dup << "b"
     assert_equal "bb", t.test2_dup
