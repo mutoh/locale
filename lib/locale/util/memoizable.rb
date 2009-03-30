@@ -48,12 +48,12 @@ module Locale
       # * Consider to use this with huge objects to avoid memory leaks.
       # * Can't use this with super.<method> because of infinity loop.
       def memoize(*symbols)
-        memoize_impl(false, symbols)
+        memoize_impl(false, *symbols)
       end
 
       # memoize with dup. A copy object is returned.
       def memoize_dup(*symbols)
-        memoize_impl(true, symbols)
+        memoize_impl(true, *symbols)
       end
 
       def memoize_impl(is_dup, *symbols) #:nodoc:
