@@ -75,8 +75,8 @@ module Locale
       def initialize(language, region = nil)
         raise "language can't be nil." unless language
         @language, @region = language, region
-        @language.downcase! if @language
-        @region.upcase! if @region
+        @language = @language.downcase if @language
+        @region = @region.upcase if @region
       end
 
       # Returns the language tag as the String. 
@@ -117,7 +117,7 @@ module Locale
       def language=(val)
         clear
         @language = val
-        @language.downcase! if @language
+        @language = @language.downcase if @language
         @language
       end
 
@@ -125,7 +125,7 @@ module Locale
       def region=(val)
         clear
         @region = val
-        @region.upcase! if @region
+        @region = @region.upcase if @region
         @region
       end
 

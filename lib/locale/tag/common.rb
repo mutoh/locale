@@ -55,7 +55,7 @@ module Locale
       # Create a Locale::Tag::Common.
       def initialize(language, script = nil, region = nil, variants = [])
         @script, @variants = script, variants
-        @script.capitalize!  if @script
+        @script = @script.capitalize  if @script
         super(language, region)
       end
       
@@ -63,7 +63,7 @@ module Locale
       def script=(val)
         clear
         @script = val
-        @script.capitalize! if @script
+        @script = @script.capitalize if @script
         @script
       end
 
