@@ -9,6 +9,8 @@
   $Id: taglist.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
+require 'locale/util/memoizable'
+
 module Locale
   # This provides the subclass of Array which behaves like 
   # the first(top priority) Locale::Tag object. 
@@ -24,6 +26,8 @@ module Locale
   # of this function.
   #
   class TagList < Array 
+    include Util::Memoizable
+
     # Returns the top priority language. (simple)
     def language
       self[0].language
@@ -48,18 +52,31 @@ module Locale
         ::Locale.driver_module.charset
       end
     end
+    memoize :charset
+
     # Returns the top priority modifier. (posix)
     def modifier
       (self[0].respond_to? :modifier) ? self[0].modifier : nil
     end
+    memoize :modifier
+
+    # Returns the top priority variants.(common, rfc, cldr)
+    def variants
+      (self[0].respond_to? :variants) ? self[0].variants : nil
+    end
+    memoize :variants
+
     # Returns the top priority extensions.(common, rfc, cldr)
     def extensions
       (self[0].respond_to? :extensions) ? self[0].extensions : nil
     end
+    memoize :extensions
+
     # Returns the top priority privateuse(rfc)
     def privateuse
       (self[0].respond_to? :privateuse) ? self[0].privateuse : nil
     end
+    memoize :privateuse
 
     def to_str
       self[0].to_str
@@ -88,6 +105,5 @@ module Locale
     def to_posix
       self[0].to_posix
     end
-
   end
 end
