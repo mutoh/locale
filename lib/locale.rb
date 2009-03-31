@@ -184,18 +184,25 @@ module Locale
     opts = {:supported_language_tags => nil, :type => :common, 
       :default_language_tags => ["en"]}.merge(options)
 
-    cache_key = opts.hash
     if Thread.current[:candidates_caches]
-      cache = Thread.current[:candidates_caches][cache_key]
+      cache = Thread.current[:candidates_caches][opts.hash]
       return cache if cache
     else
       Thread.current[:candidates_caches] = {} 
     end
+    Thread.current[:candidates_caches][opts.hash] =
+      collect_candidates(opts[:type], current, 
+                         opts[:default_language_tags], 
+                         opts[:supported_language_tags])
+  end
 
-    default_language_tags = opts[:default_language_tags].collect{|v| 
-      Locale::Tag.parse(v).send("to_#{opts[:type]}")}.flatten.uniq
+  # collect tag candidates and memoize it. 
+  # The result is shared from all threads.
+  def collect_candidates(type, tags, default_tags, supported_tags) # :nodoc:
+    default_language_tags = default_tags.collect{|v| 
+      Locale::Tag.parse(v).send("to_#{type}")}.flatten.uniq
 
-    candidate_tags = current.collect{|v| v.send("to_#{opts[:type]}").candidates}
+    candidate_tags = tags.collect{|v| v.send("to_#{type}").candidates}
 
     tags = []
     (0...candidate_tags[0].size).each {|i|
@@ -204,16 +211,14 @@ module Locale
     tags += default_language_tags
     tags.uniq!
 
-    if opts[:supported_language_tags]
-      tags &= opts[:supported_language_tags].collect{|v| 
-        Locale::Tag.parse(v).send("to_#{opts[:type]}")}.flatten
-      tags += default_language_tags if tags.size == 0
+    if supported_tags
+      tags &= supported_tags.collect{|v| 
+        Locale::Tag.parse(v).send("to_#{type}")}.flatten
+      tags = default_language_tags if tags.size == 0
     end
-    tags = Locale::TagList.new(tags)
-    Thread.current[:candidates_caches][cache_key] = tags
-    tags
+    Locale::TagList.new(tags)
   end
-
+  memoize :collect_candidates
 
   # Gets the current charset.
   #
