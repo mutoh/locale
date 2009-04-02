@@ -39,6 +39,7 @@ module Locale
     @@regions = Hash.new
     Zlib::GzipReader.open(File.dirname(__FILE__) + "/../data/regions.tab.gz") do |gz|
       gz.readlines.each do |l|
+        l.force_encoding('UTF-8') if l.respond_to?(:force_encoding)
         unless l =~ /^\s*$/
           parts = l.split(/\t/)
           region = Region.new(parts[0], parts[1].strip)
