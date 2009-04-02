@@ -88,7 +88,7 @@ module Locale
 
     Zlib::GzipReader.open(File.dirname(__FILE__) + "/../data/languages.tab.gz") do |gz|
       gz.readlines.each do |l|
-        l = l.force_encoding('UTF-8') if l.respond_to?(:force_encoding)
+        l.force_encoding('UTF-8') if l.respond_to?(:force_encoding)
         unless l =~ /^\s*$/
           parts = l.split(/\t/)
           lang = Language.new(parts[2], parts[0], parts[3], parts[4], parts[5].strip)
