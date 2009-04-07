@@ -231,7 +231,7 @@ module Locale
   end
   memoize :charset
 
-  # Clear current locale and current charset. 
+  # Clear current locale.
   # * Returns: self
   def clear
     Thread.current[:current_languages] = nil
