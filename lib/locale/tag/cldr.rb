@@ -92,7 +92,7 @@ module Locale #:nodoc:
         if @extensions.size > 0
           s << "@" << @extensions.to_a.sort.map{|k, v| "#{k}=#{v}"}.join(";")
         end
-        s
+        s 
       end
     end
   end
