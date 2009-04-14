@@ -82,7 +82,7 @@ module Locale #:nodoc:
           klass.new(language, script, region, variants, extensions, privateuse)
         elsif klass == Cldr
           exts = {}
-          extensions.each do |v|
+          extensions.sort.each do |v|
             if v =~ /^k-(#{ALPHANUM}{2,})-(.*)$/i
               exts[$1] = $2
             end
@@ -100,7 +100,7 @@ module Locale #:nodoc:
       # This is used in internal only. Use to_s instead.
       def to_string
         s = super.gsub(/_/, "-")
-        @extensions.each do |v|
+        @extensions.sort.each do |v|
           s << "-#{v}"
         end
         s << "-#{@privateuse}" if @privateuse

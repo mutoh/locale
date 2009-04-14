@@ -73,7 +73,7 @@ module Locale #:nodoc:
           klass.new(language, script, region, variants, extensions)
         elsif klass == Rfc
           exts = []
-          @extensions.each do |k, v|
+          @extensions.to_a.sort.each do |k, v|
             exts << "k-#{k[0,8]}-#{v[0,8]}"
           end
 

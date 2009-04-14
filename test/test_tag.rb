@@ -815,11 +815,7 @@ class TagTest < Test::Unit::TestCase
 
     assert_equal Locale::Tag::Simple.parse("de_DE"), lang.to_simple
     assert_equal Locale::Tag::Common.parse("de_DE"), lang.to_common
-    if RUBY_VERSION < "1.9.0" and RUBY_PLATFORM != "java"
-      assert_equal Locale::Tag::Rfc.parse("de-DE-k-currency-DDM-k-collatio-phoneboo"), lang.to_rfc
-    else
-      assert_equal Locale::Tag::Rfc.parse("de-DE-k-collatio-phoneboo-k-currency-DDM"), lang.to_rfc
-    end
+    assert_equal Locale::Tag::Rfc.parse("de-DE-k-collatio-phoneboo-k-currency-DDM"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("de_DE@collation=phonebook;currency=DDM"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("de_DE"), lang.to_posix
 
@@ -844,11 +840,7 @@ class TagTest < Test::Unit::TestCase
 
     assert_equal Locale::Tag::Simple.parse("en_US"), lang.to_simple
     assert_equal Locale::Tag::Common.parse("en_US_POSIX"), lang.to_common
-    if RUBY_VERSION < "1.9.0" and RUBY_PLATFORM != "java"
-      assert_equal Locale::Tag::Rfc.parse("en-US-POSIX-k-colStren-secondar-k-collatio-traditio-k-calendar-islamic"), lang.to_rfc
-    else
-      assert_equal Locale::Tag::Rfc.parse("en-US-POSIX-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
-    end
+    assert_equal Locale::Tag::Rfc.parse("en-US-POSIX-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("en_US_POSIX@calendar=islamic;collation=traditional;colStrength=secondary"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("en_US@POSIX"), lang.to_posix
 
@@ -873,11 +865,7 @@ class TagTest < Test::Unit::TestCase
 
     assert_equal Locale::Tag::Simple.parse("en_US"), lang.to_simple
     assert_equal Locale::Tag::Common.parse("en_US"), lang.to_common
-    if RUBY_VERSION < "1.9.0" and RUBY_PLATFORM != "java"
-      assert_equal Locale::Tag::Rfc.parse("en-US-k-colStren-secondar-k-collatio-traditio-k-calendar-islamic"), lang.to_rfc
-    else
-      assert_equal Locale::Tag::Rfc.parse("en-US-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
-    end
+    assert_equal Locale::Tag::Rfc.parse("en-US-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("en_US@calendar=islamic;collation=traditional;colStrength=secondary"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("en_US"), lang.to_posix
 
