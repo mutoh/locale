@@ -1,3 +1,13 @@
+= locale-2.0.1 (2009-04-18)
+ * Locale::Tag::Common#extensions are shown order by the keys.[reported by
+ Dan Coutu]
+ * Enhance to support ruby-1.9.x [by OZAWA Sakuro]
+ * Reimplement memoize to be able to freeze or dup the object.
+ * Improve Locale.candidates.
+
+ Thanks to:
+   Dan Coutu, OZAWA Sakuro
+
 = locale-2.0.0 (2009-03-21)
  * Support Rack.
  * move to github from svn.
