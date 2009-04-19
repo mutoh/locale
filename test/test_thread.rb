@@ -12,7 +12,7 @@ class TestThread < Test::Unit::TestCase
   def invoke_thread(tag, sleep_time)
     Thread.start do
       @mutex.synchronize {
-        ENV["LANG"] = tag
+        ENV["LC_ALL"] = tag
         Locale.current
       }
       (1..10).each do |v|
