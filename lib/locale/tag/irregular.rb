@@ -1,12 +1,12 @@
 =begin
-  locale/tag/illegular.rb - Locale::Tag::Illegular
+  locale/tag/irregular.rb - Locale::Tag::Irregular
 
   Copyright (C) 2008  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
 
-  $Id: illegular.rb 27 2008-12-03 15:06:50Z mutoh $
+  $Id: irregular.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
 require 'locale/tag/simple'
@@ -15,7 +15,7 @@ module Locale
 
   module Tag
     # Broken tag class.
-    class Illegular < Simple
+    class Irregular < Simple
 
       def initialize(tag)
         tag = "en" if tag == nil || tag.empty?
@@ -25,7 +25,7 @@ module Locale
 
       # Returns an Array of tag-candidates order by priority.
       def candidates
-        [Illegular.new(tag)]
+        [Irregular.new(tag)]
       end
       memoize :candidates
 

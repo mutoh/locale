@@ -8,7 +8,7 @@
 =end
 
 require 'locale/tag/simple'
-require 'locale/tag/illegular'
+require 'locale/tag/irregular'
 require 'locale/tag/common'
 require 'locale/tag/rfc'
 require 'locale/tag/cldr'
@@ -31,7 +31,7 @@ module Locale
         ret = parser.parse(tag)
         return ret if ret
       end
-      Locale::Tag::Illegular.new(tag)
+      Locale::Tag::Irregular.new(tag)
     end
     memoize :parse
   end

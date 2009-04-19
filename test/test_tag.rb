@@ -1135,11 +1135,11 @@ class TagTest < Test::Unit::TestCase
 
   def test_invaild
     lang = Locale::Tag.parse("")
-    assert_equal Locale::Tag::Illegular, lang.class
+    assert_equal Locale::Tag::Irregular, lang.class
     assert_equal "en", lang.language
     assert_equal nil, lang.region
 
-    assert_equal [Locale::Tag::Illegular.new("en"),
+    assert_equal [Locale::Tag::Irregular.new("en"),
                  ], lang.candidates
 
     assert_equal Locale::Tag::Simple.parse("en"), lang.to_simple
@@ -1149,11 +1149,11 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Posix.parse("en"), lang.to_posix
 
     lang = Locale::Tag.parse(nil)
-    assert_equal Locale::Tag::Illegular, lang.class
+    assert_equal Locale::Tag::Irregular, lang.class
     assert_equal "en", lang.language
     assert_equal nil, lang.region
 
-    assert_equal [Locale::Tag::Illegular.new("en"),
+    assert_equal [Locale::Tag::Irregular.new("en"),
                  ], lang.candidates
 
     assert_equal Locale::Tag::Simple.parse("en"), lang.to_simple
