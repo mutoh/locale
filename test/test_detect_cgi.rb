@@ -62,59 +62,59 @@ class TestDetectCGI < Test::Unit::TestCase
   end
 
   def test_accept_language
-    setup_cgi("")
     ENV["HTTP_ACCEPT_LANGUAGE"] = ""
     ENV["HTTP_ACCEPT_CHARSET"] = ""
+    setup_cgi("")
     lang = Locale.current[0]
     assert_equal(Locale::Tag::Simple, lang.class)
     assert_equal("en", lang.to_s)
     assert_equal("en", lang.to_rfc.to_s)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_LANGUAGE"] = "ja,en-us;q=0.7,en;q=0.3"
+    setup_cgi("")
     lang1, lang2, lang3 = Locale.current
     assert_equal("ja", lang1.to_rfc.to_s)
     assert_equal("en-US", lang2.to_rfc.to_s)
     assert_equal("en", lang3.to_rfc.to_s)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_LANGUAGE"] = "en-us,ja;q=0.7,en;q=0.3"
+    setup_cgi("")
     lang1, lang2, lang3 = Locale.current
     assert_equal("en-US", lang1.to_rfc.to_s)
     assert_equal("ja", lang2.to_rfc.to_s)
     assert_equal("en", lang3.to_rfc.to_s)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_LANGUAGE"] = "en"
+    setup_cgi("")
     lang = Locale.current[0]
     assert_equal("en", lang.to_rfc.to_s)
   end
 
   def test_accept_charset
     #accept charset
-    setup_cgi("")
     ENV["HTTP_ACCEPT_CHARSET"] = "Shift_JIS"
+    setup_cgi("")
     assert_equal("Shift_JIS", Locale.charset)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_CHARSET"] = "EUC-JP,*,utf-8"
+    setup_cgi("")
     assert_equal("EUC-JP", Locale.charset)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_CHARSET"] = "*"
+    setup_cgi("")
     assert_equal("UTF-8", Locale.charset)
 
-    setup_cgi("")
     ENV["HTTP_ACCEPT_CHARSET"] = ""
+    setup_cgi("")
     assert_equal("UTF-8", Locale.charset)
   end
 
   def test_default
     Locale.set_default(nil)
     Locale.set_default("ja-JP")
-    setup_cgi("")
     ENV["HTTP_ACCEPT_LANGUAGE"] = ""
     ENV["HTTP_ACCEPT_CHARSET"] = ""
+    setup_cgi("")
     assert_equal("ja-JP", Locale.default.to_rfc.to_s)
     assert_equal("ja-JP", Locale.current.to_rfc.to_s)
     Locale.set_default(nil)
@@ -137,9 +137,9 @@ class TestDetectCGI < Test::Unit::TestCase
   end
 
   def test_candidates
-    setup_cgi("")
 
     ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"
+    setup_cgi("")
 
     assert_equal common("fr-FR", "zh-CN", "zh-TW", "ja-JP", 
                         "fr", "zh", "ja", "en"), Locale.candidates

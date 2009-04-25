@@ -29,14 +29,13 @@ module Locale
       #          (QUERY_STRING "lang" > COOKIE "lang" > HTTP_ACCEPT_LANGUAGE > "en")
       # 
       def locales
-        cgi_ = cgi
-        return Locale::TagList.new([@@default_locale]) unless cgi_
+        req = Thread.current[:current_request]
+        return Locale::TagList.new([@@default_locale]) unless req
 
         locales = Locale::TagList.new
 
         # QUERY_STRING "lang"
-        langs = cgi_.params["lang"]
-        if langs
+        if langs = req[:query_langs]
           langs.each do |lang|
             locales << Locale::Tag.parse(lang)
           end
@@ -44,8 +43,7 @@ module Locale
 
         unless locales.size > 0
           # COOKIE "lang"
-          langs = cgi_.cookies["lang"]
-          if langs
+          if langs = req[:cookie_langs]
             langs.each do |lang|
               locales << Locale::Tag.parse(lang) if lang.size > 0
             end
@@ -54,7 +52,7 @@ module Locale
 
         unless locales.size > 0
           # HTTP_ACCEPT_LANGUAGE
-          if lang = cgi_.accept_language and lang.size > 0
+          if lang = req[:accept_language] and lang.size > 0
             locales += lang.gsub(/\s/, "").split(/,/).map{|v| v.split(";q=")}.map{|j| [j[0], j[1] ? j[1].to_f : 1.0]}.sort{|a,b| -(a[1] <=> b[1])}.map{|v| Locale::Tag.parse(v[0])}
           end
         end
@@ -68,10 +66,10 @@ module Locale
       # Gets the charset from CGI parameters. (Based on RFC2616)
       #  * Returns: the charset (HTTP_ACCEPT_CHARSET > "UTF-8").
      def charset
-       cgi_ = cgi
-       return @@default_charset unless cgi_
+       req = Thread.current[:current_request]
+       return @@default_charset unless req
 
-       charsets = cgi_.accept_charset
+       charsets = req[:accept_charset]
        if charsets and charsets.size > 0
          num = charsets.index(',')
          charset = num ? charsets[0, num] : charsets
@@ -82,31 +80,52 @@ module Locale
        charset
      end
 
-      # Sets a CGI object.
-      # * cgi_: CGI object
-      # * Returns: self
-      def set_cgi(cgi_)
-        Thread.current[:current_cgi]  = cgi_
-        self
-      end
-      
-      def cgi  #:nodoc:
-        Thread.current[:current_cgi]
-      end
+     # Set a request.
+     # 
+     # * query_langs: An Array of QUERY_STRING value "lang".
+     # * cookie_langs: An Array of cookie value "lang".
+     # * accept_language: The value of HTTP_ACCEPT_LANGUAGE
+     # * accept_charset: The value of HTTP_ACCEPT_CHARSET
+     def set_request(query_langs, cookie_langs, accept_language, accept_charset)
+       Thread.current[:current_request] = {
+         :query_langs => query_langs, 
+         :cookie_langs => cookie_langs, 
+         :accept_language => accept_language,
+         :accept_charset => accept_charset
+       }
+       self
+     end
+
+     # Clear the current request.
+     def clear_current_request
+       Thread.current[:current_request] = nil
+     end
     end
   end
 
   @@locale_driver_module = Driver::CGI
   
   module_function
-  # Sets a CGI object. 
+  # Sets a request values for lang/charset.
+  #
+  # * query_langs: An Array of QUERY_STRING value "lang".
+  # * cookie_langs: An Array of cookie value "lang".
+  # * accept_language: The value of HTTP_ACCEPT_LANGUAGE
+  # * accept_charset: The value of HTTP_ACCEPT_CHARSET
+  def set_request(query_langs, cookie_langs, accept_language, accept_charset)
+    @@locale_driver_module.set_request(query_langs, cookie_langs, accept_language, accept_charset)
+    self
+  end
+
+  # Sets a CGI object. This is the convenient function of set_request().
   #
   # Call Locale.init(:driver => :cgi) first.
   #
-  # * cgi_: CGI object
+  # * cgi: CGI object
   # * Returns: self
-  def set_cgi(cgi_)
-    @@locale_driver_module.set_cgi(cgi_)
+  def set_cgi(cgi)
+    set_request(cgi.params["lang"], cgi.cookies["lang"],
+                cgi.accept_language, cgi.accept_charset)
     self
   end
   
@@ -114,19 +133,10 @@ module Locale
   #
   # Call Locale.init(:driver => :cgi) first.
   #
-  # * cgi_: CGI object
-  # * Returns: cgi_ 
-  def cgi=(cgi_)
-    set_cgi(cgi_)
-    cgi_
-  end
-  
-  # Gets the CGI object. If it is nil, returns new CGI object.
-  #
-  # Call Locale.init(:driver => :cgi) first.
-  #
-  # * Returns: the CGI object
-  def cgi
-    @@locale_driver_module.cgi
+  # * cgi: CGI object
+  # * Returns: cgi 
+  def cgi=(cgi)
+    set_cgi(cgi)
+    cgi
   end
 end
