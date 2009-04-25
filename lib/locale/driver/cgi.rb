@@ -29,8 +29,8 @@ module Locale
       #          (QUERY_STRING "lang" > COOKIE "lang" > HTTP_ACCEPT_LANGUAGE > "en")
       # 
       def locales
-        return Locale::TagList.new([@@default_locale]) unless cgi
         cgi_ = cgi
+        return Locale::TagList.new([@@default_locale]) unless cgi_
 
         locales = Locale::TagList.new
 
@@ -69,6 +69,8 @@ module Locale
       #  * Returns: the charset (HTTP_ACCEPT_CHARSET > "UTF-8").
      def charset
        cgi_ = cgi
+       return @@default_charset unless cgi_
+
        charsets = cgi_.accept_charset
        if charsets and charsets.size > 0
          num = charsets.index(',')
