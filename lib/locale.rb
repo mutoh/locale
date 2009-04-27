@@ -74,7 +74,7 @@ module Locale
     default_tag = nil
     Thread.list.each do |thread|
       thread[:current_languages] = nil
-      thread[:candidates_caches] = {}
+      thread[:candidates_caches] = nil
     end
 
     if tag
@@ -132,7 +132,7 @@ module Locale
       end
     end
     Thread.current[:current_languages] = languages
-    Thread.current[:candidates_caches] = {}
+    Thread.current[:candidates_caches] = nil
     self
   end
 
@@ -174,9 +174,9 @@ module Locale
   # Usually, this method is used to find the locale data as the path(or a kind of IDs).
   # * options: options as a Hash or nil.
   #   * :supported_language_tags: an Array of the language tags order by the priority. This option 
-  #      filters the locales which are supported by the library/application.
-  #      Default is nil if you don't need to filter the locales.
-  #       * (e.g.1) ["fr_FR", "en_GB", "en_US", ...], (e.g.2) ["fr-FR", "en-GB", "en-US", ...]
+  #      restricts the locales which are supported by the library/application.
+  #      Default is nil if you don't need to restrict the locales.
+  #       * (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
   #   * :type: the type of language tag. :common, :rfc, :cldr, :posix and 
   #      :simple are available. Default value is :common
   #   * :default_language_tags: the default languages as an Array. Default value is ["en"]. 
@@ -185,7 +185,7 @@ module Locale
       :default_language_tags => ["en"]}.merge(options)
 
     if Thread.current[:candidates_caches]
-      cache = Thread.current[:candidates_caches][opts.hash]
+     cache = Thread.current[:candidates_caches][opts.hash]
       return cache if cache
     else
       Thread.current[:candidates_caches] = {} 
@@ -211,8 +211,19 @@ module Locale
     tags += default_language_tags
     tags.uniq!
 
-    if supported_tags
-      tags &= supported_tags.collect{|v| 
+    all_tags = nil
+    if @@app_language_tags
+      if supported_tags
+        all_tags = @@app_language_tags & supported_tags
+      else
+        all_tags = @@app_language_tags
+      end
+    elsif supported_tags
+      all_tags = supported_tags
+    end
+
+    if all_tags
+      tags &= all_tags.collect{|v| 
         Locale::Tag.parse(v).send("to_#{type}")}.flatten
       tags = default_language_tags if tags.size == 0
     end
@@ -235,7 +246,7 @@ module Locale
   # * Returns: self
   def clear
     Thread.current[:current_languages] = nil
-    Thread.current[:candidates_caches] = {}
+    Thread.current[:candidates_caches] = nil
     self
   end
 
@@ -246,8 +257,29 @@ module Locale
   def clear_all
     Thread.list.each do |thread|
       thread[:current_languages] = nil
-      thread[:candidates_caches] = {}
+      thread[:candidates_caches] = nil
     end
+    memoize_clear
     self
+  end
+
+  @@app_language_tags = nil
+  # Set the language tags which is supported by the Application.
+  # This value is same with supported_language_tags in Locale.candidates
+  # to restrict the result but is the global setting.
+  # Set nil if clear the value.
+  #
+  # Note that the libraries/plugins shouldn't set this value.
+  #
+  #  (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
+  def set_app_language_tags(*tags)
+    @@app_language_tags = tags[0] ? tags : nil
+    clear_all
+    self
+  end
+
+  # Returns the app_language_tags. Default is nil.
+  def app_language_tags
+    @@app_language_tags
   end
 end

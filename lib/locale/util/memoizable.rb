@@ -26,8 +26,13 @@ module Locale
         end
       end
 
+      # Clear memoized values. Deprecated.
+      def clear  # :nodoc: 
+        @_memoized_ivars = {}
+      end
+
       # Clear memoized values.
-      def clear
+      def memoize_clear
         @_memoized_ivars = {}
       end
 

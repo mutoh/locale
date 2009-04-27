@@ -1168,4 +1168,5 @@ class TagTest < Test::Unit::TestCase
       Locale::Tag::Simple.new(nil)
     }
   end
+
 end

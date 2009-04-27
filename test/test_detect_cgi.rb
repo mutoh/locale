@@ -176,4 +176,16 @@ class TestDetectCGI < Test::Unit::TestCase
     assert_equal "FR", taglist.region
 
   end
+
+
+  def test_app_language_tags
+    Locale.set_app_language_tags("fr-FR", "ja")
+
+    ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"
+    setup_cgi("")
+
+    assert_equal common("fr-FR", "ja"), Locale.candidates
+
+    Locale.set_app_language_tags(nil)
+  end
 end
