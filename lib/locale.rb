@@ -1,7 +1,7 @@
 =begin
   locale.rb - Locale module
 
-  Copyright (C) 2002-2008  Masao Mutoh
+  Copyright (C) 2002-2009  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
@@ -65,6 +65,7 @@ module Locale
     @@locale_driver_module
   end
 
+  DEFAULT_LANGUAGE_TAG = Locale::Tag::Simple.new("en") #:nodoc:
   # Sets the default locale as the language tag 
   # (Locale::Tag's class or String(such as "ja_JP")).
   # 
@@ -103,7 +104,7 @@ module Locale
   #
   # * Returns: the default locale (Locale::Tag's class).
   def default
-    @@default_tag
+    @@default_tag || DEFAULT_LANGUAGE_TAG
   end
 
   # Sets the locales of the current thread order by the priority. 
@@ -149,11 +150,16 @@ module Locale
   end
 
   # Gets the current locales (Locale::Tag's class).
-  #
   # If the current locale is not set, this returns default/system locale.
+  #
+  # This method returns the current locale tags even if it isn't included in app_language_tags.
+  #
+  # Usually, the programs should use Locale.candidates to find the correct locale, not this method.
+  #
   # * Returns: an Array of the current locales (Locale::Tag's class).
   def current
-    Thread.current[:current_languages] ||= (default ? Locale::TagList.new([default]) : driver_module.locales)
+    loc = driver_module.locales
+    Thread.current[:current_languages] ||= (loc ? loc : Locale::TagList.new([default]))
     Thread.current[:current_languages]
   end
 
@@ -179,10 +185,9 @@ module Locale
   #       * (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
   #   * :type: the type of language tag. :common, :rfc, :cldr, :posix and 
   #      :simple are available. Default value is :common
-  #   * :default_language_tags: the default languages as an Array. Default value is ["en"]. 
   def candidates(options = {})
-    opts = {:supported_language_tags => nil, :type => :common, 
-      :default_language_tags => ["en"]}.merge(options)
+    opts = {:supported_language_tags => nil, :type => :common, :default => default,
+    :app_language_tags => app_language_tags}.merge(options)
 
     if Thread.current[:candidates_caches]
      cache = Thread.current[:candidates_caches][opts.hash]
@@ -191,41 +196,42 @@ module Locale
       Thread.current[:candidates_caches] = {} 
     end
     Thread.current[:candidates_caches][opts.hash] =
-      collect_candidates(opts[:type], current, 
-                         opts[:default_language_tags], 
-                         opts[:supported_language_tags])
+      collect_candidates(opts[:type], current, default,
+                         opts[:supported_language_tags], app_language_tags)
   end
 
   # collect tag candidates and memoize it. 
   # The result is shared from all threads.
-  def collect_candidates(type, tags, default_tags, supported_tags) # :nodoc:
-    default_language_tags = default_tags.collect{|v| 
-      Locale::Tag.parse(v).send("to_#{type}")}.flatten.uniq
-
+  def collect_candidates(type, tags, default_tag, supported_tags, app_tags) # :nodoc:
     candidate_tags = tags.collect{|v| v.send("to_#{type}").candidates}
+    default_tags = default_tag.send("to_#{type}").candidates
+    if app_tags
+      app_tags = app_tags.collect{|v| v.send("to_#{type}")}.flatten.uniq
+    end
+    if supported_tags
+      supported_tags = supported_tags.collect{|v| Locale::Tag.parse(v).send("to_#{type}")}.flatten.uniq
+    end
 
     tags = []
     (0...candidate_tags[0].size).each {|i|
       tags += candidate_tags.collect{|v| v[i]}
     }
-    tags += default_language_tags
+    tags += default_tags
     tags.uniq!
 
     all_tags = nil
-    if @@app_language_tags
+    if app_tags
       if supported_tags
-        all_tags = @@app_language_tags & supported_tags
+        all_tags = app_tags & supported_tags
       else
-        all_tags = @@app_language_tags
+        all_tags = app_tags
       end
     elsif supported_tags
       all_tags = supported_tags
     end
-
     if all_tags
-      tags &= all_tags.collect{|v| 
-        Locale::Tag.parse(v).send("to_#{type}")}.flatten
-      tags = default_language_tags if tags.size == 0
+      tags &= all_tags
+      tags = default_tags.uniq if tags.size == 0
     end
     Locale::TagList.new(tags)
   end
@@ -238,7 +244,7 @@ module Locale
   #
   # * Returns: the current charset.
   def charset
-    driver_module.charset
+    driver_module.charset || "UTF-8"
   end
   memoize :charset
 
@@ -267,13 +273,26 @@ module Locale
   # Set the language tags which is supported by the Application.
   # This value is same with supported_language_tags in Locale.candidates
   # to restrict the result but is the global setting.
+  # If you set a language tag, the application works as the single locale 
+  # application.
+  #
+  # If Locale.default value is not included in app_language_tags,
+  # Locale.default value is ignored.
+  # Use Locale.set_default() to set correct language 
+  # if "en" is not included in the language tags.
+  #
   # Set nil if clear the value.
   #
   # Note that the libraries/plugins shouldn't set this value.
   #
   #  (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
   def set_app_language_tags(*tags)
-    @@app_language_tags = tags[0] ? tags : nil
+    if tags[0]
+      @@app_language_tags = tags.collect{|v| Locale::Tag.parse(v)}
+    else
+      @@app_language_tags = nil
+    end
+    
     clear_all
     self
   end
@@ -282,4 +301,5 @@ module Locale
   def app_language_tags
     @@app_language_tags
   end
+
 end

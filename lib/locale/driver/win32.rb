@@ -36,7 +36,7 @@ module Locale
         unless charset
           loc = LocaleTable.find{|v| v[1] =locale.to_general}
           loc = LocaleTable.find{|v| v[1] =~ /^#{locale.language}-/} unless loc
-          charset = loc ? loc[2] : "CP1252"
+          charset = loc ? loc[2] : nil
         end
         charset
       end
@@ -47,10 +47,10 @@ module Locale
           lang = LocaleTable.assoc(@@win32.call)
           if lang
             ret = Locale::Tag::Common.parse(lang[1])
+            locales = Locale::TagList.new([ret])
           else
-            ret = Locale::Tag::Common.new("en")
+            locales = nil
           end
-          locales = Locale::TagList.new([ret])
         end
         locales
       end

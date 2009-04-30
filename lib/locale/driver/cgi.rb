@@ -19,9 +19,6 @@ module Locale
     module CGI
       $stderr.puts self.name + " is loaded." if $DEBUG
 
-      @@default_locale = Locale::Tag::Simple.new("en")
-      @@default_charset = "UTF-8"
-      
       module_function
       # Gets required locales from CGI parameters. (Based on RFC2616)
       #
@@ -30,9 +27,9 @@ module Locale
       # 
       def locales
         req = Thread.current[:current_request]
-        return Locale::TagList.new([@@default_locale]) unless req
+        return nil unless req
 
-        locales = Locale::TagList.new
+        locales = []
 
         # QUERY_STRING "lang"
         if langs = req[:query_langs]
@@ -57,25 +54,22 @@ module Locale
           end
         end
 
-        unless locales.size > 0
-          locales << @@default_locale
-        end
-        Locale::TagList.new(locales.uniq)
+        locales.size > 0 ? Locale::TagList.new(locales.uniq) : nil
       end
 
       # Gets the charset from CGI parameters. (Based on RFC2616)
       #  * Returns: the charset (HTTP_ACCEPT_CHARSET > "UTF-8").
      def charset
        req = Thread.current[:current_request]
-       return @@default_charset unless req
+       return nil unless req
 
        charsets = req[:accept_charset]
        if charsets and charsets.size > 0
          num = charsets.index(',')
          charset = num ? charsets[0, num] : charsets
-         charset = @@default_charset if charset == "*"
+         charset = nil if charset == "*"
        else
-         charset = @@default_charset
+         charset = nil
        end
        charset
      end

@@ -153,23 +153,6 @@ class TestDetectCGI < Test::Unit::TestCase
     assert_equal simple("fr-FR", "zh-CN", "zh-TW", "ja-JP",  
                         "fr", "zh", "ja", "en"), Locale.candidates(:type => :simple)
 
-    assert_equal common("fr_FR", "zh", "ja"), Locale.candidates(:type => :common, 
-                                                                :supported_language_tags => ["fr_FR", "ja", "zh"])
-
-    assert_equal simple("fr-FR", "zh", "ja"), Locale.candidates(:type => :simple, 
-                                                                :supported_language_tags => ["fr-FR", "ja", "zh"])
-
-    assert_equal simple("fr-FR", "zh", "ja", "no", "pt"), 
-    Locale.candidates(:type => :simple, 
-                      :supported_language_tags => ["fr-FR", "ja", "zh", "no", "pt"],
-                      :default_language_tags => ["no", "pt"])
-
-    assert_equal simple("no", "pt"), Locale.candidates(:type => :simple, 
-                                                       :supported_language_tags => ["aa"],
-                                                       :default_language_tags => ["no", "pt"])
-    assert_equal simple("en"), Locale.candidates(:type => :simple, 
-                                                 :supported_language_tags => ["aa"])
-    
     taglist = Locale.candidates(:type => :rfc)
     assert_equal Locale::TagList, taglist.class
     assert_equal "fr", taglist.language
@@ -177,8 +160,44 @@ class TestDetectCGI < Test::Unit::TestCase
 
   end
 
+  def test_candidates_with_supported_language_tags
+    ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"
+    setup_cgi("")
 
-  def test_app_language_tags
+    assert_equal common("fr_FR", "zh", "ja"), Locale.candidates(:type => :common, 
+                                                                :supported_language_tags => ["fr_FR", "ja", "zh"])
+
+    assert_equal simple("fr-FR", "zh", "ja"), Locale.candidates(:type => :simple, 
+                                                                :supported_language_tags => ["fr-FR", "ja", "zh"])
+    #supported_language_tags includes "pt" as not in HTTP_ACCEPT_LANGUAGE
+    assert_equal simple("fr-FR", "zh", "ja"), 
+    Locale.candidates(:type => :simple, 
+                      :supported_language_tags => ["fr-FR", "ja", "zh", "pt"])
+
+  end
+
+  def test_candidates_with_default
+    ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"
+    setup_cgi("")
+
+    Locale.default = "zh_TW"
+    assert_equal simple("fr-FR", "zh", "ja"), 
+    Locale.candidates(:type => :simple, 
+                      :supported_language_tags => ["fr-FR", "ja", "zh", "pt"])
+
+    Locale.default = "pt"
+    assert_equal simple("fr-FR", "zh", "ja", "pt"), 
+    Locale.candidates(:type => :simple, 
+                      :supported_language_tags => ["fr-FR", "ja", "zh", "pt"])
+
+    # default value is selected even if default is not in supported_language_tags.
+    assert_equal simple("pt"), Locale.candidates(:type => :simple, 
+                                                 :supported_language_tags => ["aa"])
+    Locale.default = "en"
+  end
+
+
+  def test_candidates_app_language_tags
     Locale.set_app_language_tags("fr-FR", "ja")
 
     ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"
@@ -186,6 +205,12 @@ class TestDetectCGI < Test::Unit::TestCase
 
     assert_equal common("fr-FR", "ja"), Locale.candidates
 
+    # default value is selected if default is not in app_language_tags.
+    Locale.set_app_language_tags("no", "pt")
+    Locale.default = "zh"
+    assert_equal common("zh"), Locale.candidates
+
+    Locale.default = "en"
     Locale.set_app_language_tags(nil)
   end
 end

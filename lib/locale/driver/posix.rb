@@ -30,14 +30,14 @@ module Locale
       end
 
       # Gets the charset from environment variable or the result of
-      # "locale charmap".
+      # "locale charmap" or nil.
       # * Returns: the system charset.
       def charset
         charset = ::Locale::Driver::Env.charset
         unless charset
           charset = `locale charmap`.strip
           unless $? && $?.success?
-            charset = "UTF-8"
+            charset = nil
           end
         end
         charset
