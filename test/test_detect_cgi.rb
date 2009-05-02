@@ -197,7 +197,7 @@ class TestDetectCGI < Test::Unit::TestCase
   end
 
 
-  def test_candidates_app_language_tags
+  def test_candidates_with_app_language_tags
     Locale.set_app_language_tags("fr-FR", "ja")
 
     ENV["HTTP_ACCEPT_LANGUAGE"] = "fr-fr,zh_CN;q=0.7,zh_TW;q=0.2,ja_JP;q=0.1"

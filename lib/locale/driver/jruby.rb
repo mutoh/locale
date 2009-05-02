@@ -11,7 +11,7 @@
   $Id: jruby.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
-require 'locale/driver/env'
+require File.join(File.dirname(__FILE__), 'env')
 require 'java'
 
 module Locale

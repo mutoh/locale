@@ -21,9 +21,15 @@ module Locale
   @@default_tag = nil
   @@locale_driver_module = nil
 
+  ROOT = File.dirname(__FILE__)
+
   include Locale::Util::Memoizable
 
   module_function
+  def require_driver(name)
+    require File.join(ROOT, "locale/driver", name.to_s)
+  end
+
   # Initialize Locale library. 
   # Usually, you don't need to call this directly, because
   # this is called when Locale's methods are called.
@@ -41,14 +47,14 @@ module Locale
   #
   def init(opts = {})
     if opts[:driver]
-      require "locale/driver/#{opts[:driver]}"
+      require_driver opts[:driver]
     else
       if /cygwin|mingw|win32/ =~ RUBY_PLATFORM
-        require 'locale/driver/win32'
+        require_driver 'win32' 
       elsif /java/ =~ RUBY_PLATFORM
-        require 'locale/driver/jruby'
+        require_driver 'jruby' 
       else
-        require 'locale/driver/posix'
+        require_driver 'posix' 
       end
     end
   end
@@ -158,8 +164,10 @@ module Locale
   #
   # * Returns: an Array of the current locales (Locale::Tag's class).
   def current
-    loc = driver_module.locales
-    Thread.current[:current_languages] ||= (loc ? loc : Locale::TagList.new([default]))
+    unless Thread.current[:current_languages]
+      loc = driver_module.locales
+      Thread.current[:current_languages] = loc ? loc : Locale::TagList.new([default])
+    end
     Thread.current[:current_languages]
   end
 
@@ -186,8 +194,8 @@ module Locale
   #   * :type: the type of language tag. :common, :rfc, :cldr, :posix and 
   #      :simple are available. Default value is :common
   def candidates(options = {})
-    opts = {:supported_language_tags => nil, :type => :common, :default => default,
-    :app_language_tags => app_language_tags}.merge(options)
+    opts = {:supported_language_tags => nil, :current => current,
+      :type => :common}.merge(options)
 
     if Thread.current[:candidates_caches]
      cache = Thread.current[:candidates_caches][opts.hash]
@@ -196,17 +204,17 @@ module Locale
       Thread.current[:candidates_caches] = {} 
     end
     Thread.current[:candidates_caches][opts.hash] =
-      collect_candidates(opts[:type], current, default,
-                         opts[:supported_language_tags], app_language_tags)
+      collect_candidates(opts[:type], opts[:current],
+                         opts[:supported_language_tags])
   end
 
   # collect tag candidates and memoize it. 
   # The result is shared from all threads.
-  def collect_candidates(type, tags, default_tag, supported_tags, app_tags) # :nodoc:
+  def collect_candidates(type, tags, supported_tags) # :nodoc:
     candidate_tags = tags.collect{|v| v.send("to_#{type}").candidates}
-    default_tags = default_tag.send("to_#{type}").candidates
-    if app_tags
-      app_tags = app_tags.collect{|v| v.send("to_#{type}")}.flatten.uniq
+    default_tags = default.send("to_#{type}").candidates
+    if app_language_tags
+      app_tags = app_language_tags.collect{|v| v.send("to_#{type}")}.flatten.uniq
     end
     if supported_tags
       supported_tags = supported_tags.collect{|v| Locale::Tag.parse(v).send("to_#{type}")}.flatten.uniq
@@ -233,6 +241,7 @@ module Locale
       tags &= all_tags
       tags = default_tags.uniq if tags.size == 0
     end
+
     Locale::TagList.new(tags)
   end
   memoize :collect_candidates
@@ -276,8 +285,8 @@ module Locale
   # If you set a language tag, the application works as the single locale 
   # application.
   #
-  # If Locale.default value is not included in app_language_tags,
-  # Locale.default value is ignored.
+  # If the current locale is not included in app_language_tags,
+  # Locale.default value is used.
   # Use Locale.set_default() to set correct language 
   # if "en" is not included in the language tags.
   #
@@ -285,7 +294,7 @@ module Locale
   #
   # Note that the libraries/plugins shouldn't set this value.
   #
-  #  (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
+  #  (e.g.1) ["fr_FR", "en-GB", "en_US", ...]
   def set_app_language_tags(*tags)
     if tags[0]
       @@app_language_tags = tags.collect{|v| Locale::Tag.parse(v)}

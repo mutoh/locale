@@ -18,7 +18,7 @@ module Locale
     class Irregular < Simple
 
       def initialize(tag)
-        tag = "en" if tag == nil || tag.empty?
+        tag = "en" if tag == nil or tag == ""
         @language = tag
         @tag = tag
       end

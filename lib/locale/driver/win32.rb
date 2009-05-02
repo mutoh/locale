@@ -11,8 +11,8 @@
   $Id: win32.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
-require 'locale/driver/env'
-require 'locale/driver/win32_table'
+require File.join(File.dirname(__FILE__), 'env')
+require File.join(File.dirname(__FILE__), 'win32_table')
 require 'dl/win32'
 
 
