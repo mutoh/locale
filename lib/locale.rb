@@ -26,8 +26,20 @@ module Locale
   include Locale::Util::Memoizable
 
   module_function
-  def require_driver(name)
+  def require_driver(name)  #:nodoc:
     require File.join(ROOT, "locale/driver", name.to_s)
+  end
+
+  def create_language_tag(tag)  #:nodoc:
+    if tag
+      if tag.kind_of? Locale::Tag::Simple
+        tag
+      else
+        Locale::Tag.parse(tag)
+      end
+    else
+      nil
+    end
   end
 
   # Initialize Locale library. 
@@ -72,26 +84,18 @@ module Locale
   end
 
   DEFAULT_LANGUAGE_TAG = Locale::Tag::Simple.new("en") #:nodoc:
+
   # Sets the default locale as the language tag 
   # (Locale::Tag's class or String(such as "ja_JP")).
   # 
   # * tag: the default language_tag
   # * Returns: self.
   def set_default(tag)
-    default_tag = nil
     Thread.list.each do |thread|
       thread[:current_languages] = nil
       thread[:candidates_caches] = nil
     end
-
-    if tag
-      if tag.kind_of? Locale::Tag::Simple
-        default_tag = tag
-      else
-        default_tag = Locale::Tag.parse(tag)
-      end
-    end
-    @@default_tag = default_tag
+    @@default_tag = create_language_tag(tag)
     self
   end
 
@@ -131,11 +135,7 @@ module Locale
     if tags[0]
       languages = Locale::TagList.new
       tags.each do |tag|
-        if tag.kind_of? Locale::Tag::Simple
-          languages << tag
-        else
-          languages << Locale::Tag.parse(tag)
-        end
+        languages << create_language_tag(tag)
       end
     end
     Thread.current[:current_languages] = languages
@@ -198,7 +198,7 @@ module Locale
       :type => :common}.merge(options)
 
     if Thread.current[:candidates_caches]
-     cache = Thread.current[:candidates_caches][opts.hash]
+      cache = Thread.current[:candidates_caches][opts.hash]
       return cache if cache
     else
       Thread.current[:candidates_caches] = {} 
