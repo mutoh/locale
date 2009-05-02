@@ -91,6 +91,10 @@ module Locale
         to_s
       end
 
+      def <=>(other)
+        self.to_s <=> other.to_s
+      end
+
       def ==(other)  #:nodoc:
         other != nil and hash == other.hash
       end
