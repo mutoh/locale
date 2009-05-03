@@ -9,8 +9,8 @@
 
 require 'locale/tag/common'
 
-module Locale #:nodoc:
-  module Tag #:nodoc:
+module Locale 
+  module Tag 
 
     # Language tag class for RFC4646(BCP47).
     class Rfc < Common
@@ -64,13 +64,13 @@ module Locale #:nodoc:
         super(language, script, region, variants)
       end
 
-      # Sets the extensions.
+      # Sets the extensions as an Array.
       def extensions=(val)
         clear
         @extensions = val
       end
 
-      # Sets the extensions.
+      # Sets the privateuse as a String
       def privateuse=(val)
         clear
         @privateuse = val

@@ -7,9 +7,9 @@
 module Locale
   module Util
     module Memoizable
-      MEMOIZED_IVAR = Proc.new do |symbol|
+      MEMOIZED_IVAR = Proc.new do |symbol| 
         "#{symbol.to_s.sub(/\?\Z/, '_query').sub(/!\Z/, '_bang')}".to_sym
-      end
+      end 
 
       def self.included(base)
         mod = self

@@ -17,6 +17,8 @@ require 'locale/taglist'
 require 'locale/version'
 
 # Locale module manages the locale informations of the application.
+# These functions are the most important APIs in this library.
+# Almost of all i18n/l10n programs use this APIs only.
 module Locale
   @@default_tag = nil
   @@locale_driver_module = nil
@@ -45,12 +47,19 @@ module Locale
   # Initialize Locale library. 
   # Usually, you don't need to call this directly, because
   # this is called when Locale's methods are called.
-  # If you need to specify the option, call this once first.
-  # (But Almost of all case, you don't need this, because the 
-  # framework/library such as gettext calls this.)
   #
-  # If you use this library with CGI(and not use frameworks/gettext), 
+  # If you use this library with CGI or the kind of CGI.
   # You need to call Locale.init(:driver => :cgi).
+  #
+  # ==== For Framework designers/programers:
+  # If your framework is for WWW, call this once like: Locale.init(:driver => :cgi).
+  #
+  # ==== To Application programers:
+  # If your framework doesn't use ruby-locale and the application is for WWW,
+  # call this once like: Locale.init(:driver => :cgi).
+  #
+  # ==== To Library authors:
+  # Don't call this, even if your application is only for WWW.
   #
   # * opts: Options as a Hash.
   #   * :driver - The driver. :cgi if you use Locale module with CGI,
@@ -76,7 +85,7 @@ module Locale
   # Usually you don't need to call this method.
   #
   # * Returns: the driver module.
-  def driver_module
+  def driver_module 
     unless @@locale_driver_module
       Locale.init
     end
@@ -119,13 +128,14 @@ module Locale
 
   # Sets the locales of the current thread order by the priority. 
   # Each thread has a current locales.
-  # The default locale/system locale is used if the thread doesn't have current locales.
+  # The system locale/default locale is used if the thread doesn't have current locales.
   #
   # * tag: Locale::Language::Tag's class or the language tag as a String. nil if you need to
-  # clear current locales.
+  #   clear current locales.
   # * charset: the charset (override the charset even if the locale name has charset) or nil.
   # * Returns: self
   #
+  # (e.g.)
   #    Locale.set_current("ja_JP.eucJP")
   #    Locale.set_current("ja-JP")
   #    Locale.set_current("en_AU", "en_US", ...)
@@ -156,9 +166,9 @@ module Locale
   end
 
   # Gets the current locales (Locale::Tag's class).
-  # If the current locale is not set, this returns default/system locale.
+  # If the current locale is not set, this returns system/default locale.
   #
-  # This method returns the current locale tags even if it isn't included in app_language_tags.
+  # This method returns the current language tags even if it isn't included in app_language_tags.
   #
   # Usually, the programs should use Locale.candidates to find the correct locale, not this method.
   #
@@ -182,17 +192,22 @@ module Locale
   end
 
   # Returns the language tags which are variations of the current locales order by priority.
+  #
   # For example, if the current locales are ["fr", "ja_JP", "en_US", "en-Latn-GB-VARIANT"], 
   # then returns ["fr", "ja_JP", "en_US", "en-Latn-GB-VARIANT", "en_Latn_GB", "en_GB", "ja", "en"].
-  # "en" is the default locale. It's added at the end of the list even if it isn't exist.
+  # "en" is the default locale(You can change it using set_default). 
+  # The default locale is added at the end of the list even if it isn't exist.
+  #
   # Usually, this method is used to find the locale data as the path(or a kind of IDs).
   # * options: options as a Hash or nil.
-  #   * :supported_language_tags: an Array of the language tags order by the priority. This option 
-  #      restricts the locales which are supported by the library/application.
-  #      Default is nil if you don't need to restrict the locales.
-  #       * (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
-  #   * :type: the type of language tag. :common, :rfc, :cldr, :posix and 
-  #      :simple are available. Default value is :common
+  #   * :supported_language_tags - 
+  #     An Array of the language tags order by the priority. This option 
+  #     restricts the locales which are supported by the library/application.
+  #     Default is nil if you don't need to restrict the locales.
+  #      (e.g.1) ["fr_FR", "en_GB", "en_US", ...]
+  #   * :type - 
+  #     The type of language tag. :common, :rfc, :cldr, :posix and 
+  #     :simple are available. Default value is :common
   def candidates(options = {})
     opts = {:supported_language_tags => nil, :current => current,
       :type => :common}.merge(options)
@@ -266,7 +281,7 @@ module Locale
   end
 
   # Clear all locales and charsets of all threads. 
-  # This doesn't clear the default locale.
+  # This doesn't clear the default and app_language_tags.
   # Use Locale.default = nil to unset the default locale.
   # * Returns: self
   def clear_all
@@ -294,7 +309,7 @@ module Locale
   #
   # Note that the libraries/plugins shouldn't set this value.
   #
-  #  (e.g.1) ["fr_FR", "en-GB", "en_US", ...]
+  #  (e.g.) Locale.set_app_language_tags("fr_FR", "en-GB", "en_US", ...)
   def set_app_language_tags(*tags)
     if tags[0]
       @@app_language_tags = tags.collect{|v| Locale::Tag.parse(v)}
@@ -306,7 +321,7 @@ module Locale
     self
   end
 
-  # Returns the app_language_tags. Default is nil.
+  # Returns the app_language_tags. Default is nil. See set_app_language_tags for more details.
   def app_language_tags
     @@app_language_tags
   end

@@ -28,9 +28,11 @@ Rake::RDocTask.new { |rdoc|
   end
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = "Ruby-Locale library"
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.rdoc', 'ChangeLog')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.options << "--line-numbers" << "--inline-source" <<
+      "--accessor" << "cattr_accessor=object" << "--charset" << "utf-8"
+  rdoc.rdoc_files.include('README.rdoc')
+  rdoc.rdoc_files.include('ChangeLog')
+  rdoc.rdoc_files.add('lib')
   rdoc.template = allison if allison.size > 0
 }
 

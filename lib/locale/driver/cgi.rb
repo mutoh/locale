@@ -58,7 +58,7 @@ module Locale
       end
 
       # Gets the charset from CGI parameters. (Based on RFC2616)
-      #  * Returns: the charset (HTTP_ACCEPT_CHARSET > "UTF-8").
+      #  * Returns: the charset (HTTP_ACCEPT_CHARSET or nil).
      def charset
        req = Thread.current[:current_request]
        return nil unless req
@@ -113,7 +113,7 @@ module Locale
 
   # Sets a CGI object. This is the convenient function of set_request().
   #
-  # Call Locale.init(:driver => :cgi) first.
+  # This method is appeared when Locale.init(:driver => :cgi) is called.
   #
   # * cgi: CGI object
   # * Returns: self
@@ -123,9 +123,9 @@ module Locale
     self
   end
   
-  # Sets a CGI object.
+  # Sets a CGI object.This is the convenient function of set_request().
   #
-  # Call Locale.init(:driver => :cgi) first.
+  # This method is appeared when Locale.init(:driver => :cgi) is called.
   #
   # * cgi: CGI object
   # * Returns: cgi 

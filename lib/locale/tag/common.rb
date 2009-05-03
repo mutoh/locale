@@ -67,7 +67,7 @@ module Locale
         @script
       end
 
-      # Set the variants
+      # Set the variants as an Array.
       def variants=(val)
         clear
         @variants = val

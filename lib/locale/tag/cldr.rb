@@ -9,8 +9,8 @@
 
 require 'locale/tag/common'
 
-module Locale #:nodoc:
-  module Tag #:nodoc:
+module Locale 
+  module Tag 
 
     # Unicode locale identifier class for CLDR-1.6.1.
     # (Unicode Common Locale Data Repository).
@@ -61,7 +61,7 @@ module Locale #:nodoc:
         super(language, script, region, variants.map{|v| v.upcase})
       end
 
-      # Sets the extensions.
+      # Sets the extensions as an Hash.
       def extensions=(val)
         clear
         @extensions = val

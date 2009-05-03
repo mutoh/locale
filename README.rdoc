@@ -36,15 +36,23 @@ handle major locale ID standards.
   Download tar-ball from http://rubyforge.org/projects/locale/
   De-Compress archive and enter its top directory.
   Then type:
-  ($ su)
-  # ruby setup.rb
+   ($ su)
+   # ruby setup.rb
 
 == The simplest usage
 
  require 'rubygems'
  require 'locale'
  
- p Locale.current
+ p Locale.candidates
+
+== APIs
+The most important APIs are defined in Locale module.
+
+* Locale.candidates - Returns the current locale candidates.
+* Locale.current= - Sets the current locale(in a thread).
+* Locale.default= - Sets the default locale(in the whole program).
+* Locale.set_app_language_tags - Sets the locale that is supported by the App.
 
 == License
 This program is licenced under the same licence as Ruby.
@@ -65,13 +73,13 @@ This program is licenced under the same licence as Ruby.
 == References
 === Other libraries
 * langtag-0.1.0 
-    by Martin Dürst <http://rubyforge.org/projects/langtag/>
+  * by Martin Dürst <http://rubyforge.org/projects/langtag/>
 
 * memoizable.rb
-    from ActiveSupport-2.2.0 <http://rubyforge.org/projects/activesupport/>
+  * from ActiveSupport-2.2.0 <http://rubyforge.org/projects/activesupport/>
 
 * Ruby-GetText-Package-1.92.0
-    by Masao Mutoh <http://www.yotabanana.com/hiki/ruby-gettext.html>
+  * by Masao Mutoh <http://www.yotabanana.com/hiki/ruby-gettext.html>
 
 === Documents
 * The Open Group Base Specifications Issue 6 IEEE Std 1003.1, 2004 Edition 

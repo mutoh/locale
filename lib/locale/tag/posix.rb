@@ -9,8 +9,8 @@
   $Id: posix.rb 27 2008-12-03 15:06:50Z mutoh $
 =end
 
-module Locale #:nodoc:
-  module Tag #:nodoc:
+module Locale 
+  module Tag 
 
     # Locale tag class for POSIX locale
     # * ja
@@ -60,7 +60,7 @@ module Locale #:nodoc:
         @charset = val
       end
 
-      # Set the modifier.
+      # Set the modifier as a String
       def modifier=(val)
         clear
         @modifier = val
