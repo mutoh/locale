@@ -1,3 +1,18 @@
+= locale-2.0.2 (2009-05-04)
+ * Add Locale.set_app_language_tags to restrict the target locales whole the application. [Suggested by Vladimir Dobriakov]
+ * locale/driver/cgi.rb: Add Locale.set_request.
+ * sample/rack: Add a sample for rack.
+ * Improve documents.
+ * Fix bugs
+   * Illegular -> Irregular [by Denis Defreyne]
+   * test_thread.rb doesn't work under the environment where LC_ALL is set .
+     [Reported by Hans de Graaff (Bug#24831)]
+   * Fixed Locale::Drive::CGI.charset works when accept_charset is nil.
+     [Reported by hallelujah (Bug#25583)]
+
+Thanks to:
+  Denis Defreyne, Hans de Graaff, hallelujah, Vladimir Dobriakov
+
 = locale-2.0.1 (2009-04-18)
  * Locale::Tag::Common#extensions are shown order by the keys.[reported by
  Dan Coutu]
