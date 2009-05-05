@@ -123,6 +123,7 @@ class TestDetectGeneral < Test::Unit::TestCase
   end
 
   def test_default
+    ENV["LANG"] = "yo_NG"
     Locale.set_default("yo_NG")
     assert_equal Locale::Tag.parse("yo_NG"), Locale.default
     assert_equal Locale::Tag.parse("yo_NG"), Locale.current[0]

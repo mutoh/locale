@@ -33,9 +33,14 @@ module Locale
         locales = ::Locale::Driver::Env.locales
         unless locales
           locale = java.util.Locale.getDefault
+          variant = Locale.getVariant 
+          variants = []
+          if valiant != nil and variant.size > 0
+            valiants = [valiant]
+          end
           locales = TagList.new([Locale::Tag::Common.new(locale.getLanguage, nil,
                                                          locale.getCountry, 
-                                                         [locale.getVariant])])
+                                                         variants)])
         end
         locales
       end

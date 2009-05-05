@@ -27,9 +27,9 @@ class TestThread < Test::Unit::TestCase
   end
 
   def test_thread
-    th1 = invoke_thread("ja_JP.eucJP", 0.6)
-    th2 = invoke_thread("zh_CN.UTF-8", 0.4)
-    th3 = invoke_thread("en", 0.2)
+    th1 = invoke_thread("ja_JP.eucJP", 0.3)
+    th2 = invoke_thread("zh_CN.UTF-8", 0.2)
+    th3 = invoke_thread("en", 0.1)
     th1.join
     th2.join   
     th3.join
