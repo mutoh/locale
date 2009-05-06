@@ -34,7 +34,8 @@ module Locale
       def charset
         charset = ::Locale::Driver::Env.charset
         unless charset
-          loc = LocaleTable.find{|v| v[1] =locale.to_general}
+          locale = locales[0]
+          loc = LocaleTable.find{|v| v[1] =locale.to_rfc}
           loc = LocaleTable.find{|v| v[1] =~ /^#{locale.language}-/} unless loc
           charset = loc ? loc[2] : nil
         end
