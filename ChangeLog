@@ -7,8 +7,9 @@
    * Illegular -> Irregular [by Denis Defreyne]
    * test_thread.rb doesn't work under the environment where LC_ALL is set .
      [Reported by Hans de Graaff (Bug#24831)]
-   * Fixed Locale::Drive::CGI.charset works when accept_charset is nil.
+   * Fixed Locale::Drive::CGI.charset don't work when accept_charset is nil.
      [Reported by hallelujah (Bug#25583)]
+   * Fixed Locale::Drive::Win32.charset don't work.
 
 Thanks to:
   Denis Defreyne, Hans de Graaff, hallelujah, Vladimir Dobriakov
