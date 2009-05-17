@@ -54,10 +54,12 @@ spec = Gem::Specification.new do |s|
   EOF
 end
 
-Rake::PackageTask.new("ruby-locale", PKG_VERSION) do |o|
-  o.package_files = FileList['**/*'].to_a.select{|v| v !~ /pkg|CVS/}
-  o.need_tar_gz = true
-  o.need_zip = false
+unless RUBY_PLATFORM =~ /win32/
+  Rake::PackageTask.new("ruby-locale", PKG_VERSION) do |o|
+    o.package_files = FileList['**/*'].to_a.select{|v| v !~ /pkg|CVS/}
+    o.need_tar_gz = true
+    o.need_zip = false
+  end
 end
 
 Rake::GemPackageTask.new(spec) do |p|

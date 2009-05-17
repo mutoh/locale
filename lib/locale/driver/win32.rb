@@ -26,7 +26,8 @@ module Locale
 
       $stderr.puts self.name + " is loaded." if $DEBUG
       
-      @@win32 = Win32API.new("kernel32.dll", "GetUserDefaultLangID", nil, "i")
+      @@win32 = nil
+      @@current_locale_id = nil
 
       module_function
 
@@ -34,18 +35,36 @@ module Locale
       def charset
         charset = ::Locale::Driver::Env.charset
         unless charset
-          locale = locales[0]
-          loc = LocaleTable.find{|v| v[1] =locale.to_rfc}
-          loc = LocaleTable.find{|v| v[1] =~ /^#{locale.language}-/} unless loc
-          charset = loc ? loc[2] : nil
+          if locales
+            tag = locales[0].to_rfc.to_s
+            loc = LocaleTable.find{|v| v[1] == tag}
+            loc = LocaleTable.find{|v| v[1] =~ /^#{locales[0].language}/} unless loc
+            charset = loc ? loc[2] : nil
+          else
+            charset = "CP1252"
+          end
         end
         charset
+      end
+
+      def thread_locale_id  #:nodoc:
+        if @@current_locale_id
+          @@current_locale_id
+        else
+          @@win32 ||= Win32API.new("kernel32.dll", "GetThreadLocale", nil, "i")
+          @@win32.call
+        end
+      end
+
+      def set_thread_locale_id(lcid)  #:nodoc:
+        # for testing.
+        @@current_locale_id = lcid
       end
 
       def locales  #:nodoc:
         locales = ::Locale::Driver::Env.locales
         unless locales
-          lang = LocaleTable.assoc(@@win32.call)
+          lang = LocaleTable.assoc(thread_locale_id)
           if lang
             ret = Locale::Tag::Common.parse(lang[1])
             locales = Locale::TagList.new([ret])
