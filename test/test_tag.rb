@@ -3,7 +3,7 @@ require 'test/unit'
 
 class TagTest < Test::Unit::TestCase
 
-  def test_simple
+  def test_simple_lang
     #ja-JP, ja-392
     lang = Locale::Tag.parse("ja")
     assert_equal Locale::Tag::Simple, lang.class
@@ -23,14 +23,16 @@ class TagTest < Test::Unit::TestCase
     assert_equal "kok", lang.language
     assert_equal nil, lang.region
     assert_equal [Locale::Tag::Simple.parse("kok"),
-                 Locale::Tag::Simple.parse("kok")], lang.candidates
- 
+                  Locale::Tag::Simple.parse("kok")], lang.candidates
+    
     assert_equal Locale::Tag::Simple.parse("kok"), lang.to_simple
     assert_equal Locale::Tag::Common.parse("kok"), lang.to_common
     assert_equal Locale::Tag::Rfc.parse("kok"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("kok"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("kok"), lang.to_posix
+  end
 
+  def test_simple_lang_region
     lang = Locale::Tag.parse("ja-JP")
     assert_equal Locale::Tag::Simple, lang.class
     assert_equal "ja", lang.language
@@ -56,7 +58,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-JP"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja-JP"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP"), lang.to_posix
+  end
 
+  def test_simple_unm49
     # UN_M.49(Country code)
     lang = Locale::Tag.parse("ja-392")
     assert_equal Locale::Tag::Simple, lang.class
@@ -70,7 +74,7 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-392"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja-392"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_392"), lang.to_posix
-  
+    
     lang = Locale::Tag.parse("jpn-392")
     assert_equal Locale::Tag::Simple, lang.class
     assert_equal "jpn", lang.language
@@ -119,9 +123,8 @@ class TagTest < Test::Unit::TestCase
 
   end
 
-  def test_common
-    #lang, region, script, variants
-
+  #lang, region, script, variants
+  def test_common_lang_script
     lang = Locale::Tag.parse("az_Arab")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "az", lang.language
@@ -143,26 +146,6 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.parse("az_Arab"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("az"), lang.to_posix
 
-    lang = Locale::Tag.parse("en_Latn_US_NYNORSK")
-    assert_equal Locale::Tag::Common, lang.class
-    assert_equal "en", lang.language
-    assert_equal "US", lang.region
-    assert_equal ["NYNORSK"], lang.variants
-    assert_equal [Locale::Tag::Common.parse("en_Latn_US_NYNORSK"),
-                  Locale::Tag::Common.parse("en_Latn_US"),
-                  Locale::Tag::Common.parse("en_US_NYNORSK"),
-                  Locale::Tag::Common.parse("en_US"),
-                  Locale::Tag::Common.parse("en_Latn_NYNORSK"),
-                  Locale::Tag::Common.parse("en_Latn"),
-                  Locale::Tag::Common.parse("en_NYNORSK"),
-                  Locale::Tag::Common.parse("en")], lang.candidates
-
-
-    assert_equal Locale::Tag::Simple.parse("en-US"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("en_Latn_US_NYNORSK"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("en-Latn-US-NYNORSK"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("en_Latn_US_NYNORSK"), lang.to_cldr
-    assert_equal Locale::Tag::Posix.parse("en_US@NYNORSK"), lang.to_posix
 
     lang = Locale::Tag.parse("uz-Cyrl")
     assert_equal Locale::Tag::Common, lang.class
@@ -184,7 +167,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("uz-Cyrl"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("uz_Cyrl"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("uz"), lang.to_posix
+  end
 
+  def test_common_lang_script_region
     lang = Locale::Tag.parse("ja-Kana-JP")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "ja", lang.language
@@ -205,7 +190,7 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP"), lang.to_posix
 
-
+    # 3 char language
     lang = Locale::Tag.parse("jpn-Hira-JP")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "jpn", lang.language
@@ -225,7 +210,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("jpn-Hira-JP"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("jpn_Hira_JP"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("jpn_JP"), lang.to_posix
+  end
 
+  def test_common_lang_script_unm49
     lang = Locale::Tag.parse("jpn-Hira-392")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "jpn", lang.language
@@ -246,8 +233,33 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("jpn-Hira-392"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("jpn_Hira_392"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("jpn_392"), lang.to_posix
+  end
 
-    # Variants
+  def test_common_lang_script_region_variants
+    lang = Locale::Tag.parse("en_Latn_US_NYNORSK")
+    assert_equal Locale::Tag::Common, lang.class
+    assert_equal "en", lang.language
+    assert_equal "US", lang.region
+    assert_equal ["NYNORSK"], lang.variants
+    assert_equal [Locale::Tag::Common.parse("en_Latn_US_NYNORSK"),
+                  Locale::Tag::Common.parse("en_Latn_US"),
+                  Locale::Tag::Common.parse("en_US_NYNORSK"),
+                  Locale::Tag::Common.parse("en_US"),
+                  Locale::Tag::Common.parse("en_Latn_NYNORSK"),
+                  Locale::Tag::Common.parse("en_Latn"),
+                  Locale::Tag::Common.parse("en_NYNORSK"),
+                  Locale::Tag::Common.parse("en")], lang.candidates
+
+
+    assert_equal Locale::Tag::Simple.parse("en-US"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("en_Latn_US_NYNORSK"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("en-Latn-US-NYNORSK"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("en_Latn_US_NYNORSK"), lang.to_cldr
+    assert_equal Locale::Tag::Posix.parse("en_US@NYNORSK"), lang.to_posix
+  end
+
+
+  def test_common_lang_variants
     lang = Locale::Tag.parse("ja-osaka")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "ja", lang.language
@@ -270,8 +282,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-osaka"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja_OSAKA"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja@osaka"), lang.to_posix
+  end
 
-
+  def test_common_lang_region_variants
     lang = Locale::Tag.parse("ja-JP-osaka")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "ja", lang.language
@@ -294,8 +307,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-JP-osaka"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja_JP_OSAKA"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@osaka"), lang.to_posix
+  end
 
-    #5 length
+  def test_common_lang_script_region_5length_variants
     lang = Locale::Tag.parse("ja-Kana-JP-osaka")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "ja", lang.language
@@ -318,7 +332,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-osaka"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_OSAKA"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@osaka"), lang.to_posix
+  end
 
+  def test_common_lang_script_region_mid_length_variants
     #middle length
     lang = Locale::Tag.parse("ja-Kana-JP-aomori")
     assert_equal Locale::Tag::Common, lang.class
@@ -343,6 +359,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_AOMORI"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@aomori"), lang.to_posix
 
+  end
+
+  def test_common_lang_script_region_8length_variants
     #8 length
     lang = Locale::Tag.parse("ja-Kana-JP-hokuriku")
     assert_equal Locale::Tag::Common, lang.class
@@ -366,7 +385,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-hokuriku"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_HOKURIKU"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@hokuriku"), lang.to_posix
+  end
 
+  def test_common_lang_script_region_special_variants
     #1 digit and 3 alpha
     lang = Locale::Tag.parse("ja-Kana-JP-0abc")
     assert_equal Locale::Tag::Common, lang.class
@@ -390,7 +411,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-0abc"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_0ABC"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@0abc"), lang.to_posix
+  end
 
+  def test_common_lang_region_4digits_variants
     #4 digits
     lang = Locale::Tag.parse("de-CH-1996")
     assert_equal Locale::Tag::Common, lang.class
@@ -413,7 +436,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("de-CH-1996"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("de_CH_1996"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("de_CH@1996"), lang.to_posix
+  end
 
+  def test_common_lang_region_plural_variants
     #Plural
     lang = Locale::Tag.parse("ja-Kana-JP-hokuriku-aomori")
     assert_equal Locale::Tag::Common, lang.class
@@ -437,7 +462,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-hokuriku-aomori"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("ja-Kana-JP_HOKURIKU_AOMORI"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("ja_JP@hokuriku-aomori"), lang.to_posix
+  end
 
+  def test_common_cases
     #cases
     lang = Locale::Tag.parse("mn-Cyrl-MN")
     assert_equal Locale::Tag::Common, lang.class
@@ -507,12 +534,15 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("zh-Latn-CN-variant1"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("zh-Latn-CN_VARIANT1"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("zh_CN@variant1"), lang.to_posix
+  end
 
+  def test_common_lang_region_variants_rfc3066
     # RFC3066 compatible
     lang = Locale::Tag.parse("ja-jp-mac")
     assert_equal Locale::Tag::Common, lang.class
     assert_equal "ja", lang.language
     assert_equal "JP", lang.region
+    assert_equal ["mac"], lang.variants
     assert_equal nil, lang.script
     assert_equal [Locale::Tag::Common.parse("ja_JP_mac"),
                   Locale::Tag::Common.parse("ja_JP"),
@@ -549,80 +579,7 @@ class TagTest < Test::Unit::TestCase
 
   end
 
-  def test_rfc
-    # extension
-    lang = Locale::Tag.parse("ja-Kana-JP-0abc-y-aa-z-bbccdd-b-nnnnnnnn")
-    assert_equal Locale::Tag::Rfc, lang.class
-    assert_equal "ja", lang.language
-    assert_equal "JP", lang.region
-    assert_equal "Kana", lang.script
-    assert_equal ["0abc"], lang.variants
-    assert_equal ["y-aa", "z-bbccdd", "b-nnnnnnnn"], lang.extensions
-
-    assert_equal [Locale::Tag::Rfc.parse("ja-Kana-JP-0abc"),
-                  Locale::Tag::Rfc.parse("ja-Kana-JP"),
-                  Locale::Tag::Rfc.parse("ja-JP-0abc"),
-                  Locale::Tag::Rfc.parse("ja-JP"),
-                  Locale::Tag::Rfc.parse("ja-Kana-0abc"),
-                  Locale::Tag::Rfc.parse("ja-Kana"),
-                  Locale::Tag::Rfc.parse("ja-0abc"),
-                  Locale::Tag::Rfc.parse("ja"),
-                 ], lang.candidates
-
-    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("ja-Kana-JP-0abc"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-0abc-y-aa-z-bbccdd-b-nnnnnnnn"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_0abc"), lang.to_cldr
-    assert_equal Locale::Tag::Posix.parse("ja_JP@0abc"), lang.to_posix
-
-    lang = Locale::Tag.parse("ja-JP-0abc-y-aa-z-bbccdd-b-xxxnnnnn")
-    assert_equal Locale::Tag::Rfc, lang.class
-    assert_equal "ja", lang.language
-    assert_equal "JP", lang.region
-    assert_equal nil, lang.script
-    assert_equal ["0abc"], lang.variants
-    assert_equal ["y-aa", "z-bbccdd", "b-xxxnnnnn"], lang.extensions
-
-    assert_equal [Locale::Tag::Rfc.parse("ja-JP-0abc"),
-                  Locale::Tag::Rfc.parse("ja-JP"),
-                  Locale::Tag::Rfc.parse("ja-JP-0abc"),
-                  Locale::Tag::Rfc.parse("ja-JP"),
-                  Locale::Tag::Rfc.parse("ja-0abc"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja-0abc"),
-                  Locale::Tag::Rfc.parse("ja"),
-                 ], lang.candidates
-
-    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("ja-JP-0abc"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("ja-JP-0abc-y-aa-z-bbccdd-b-xxxnnnnn"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("ja_JP_0abc"), lang.to_cldr
-    assert_equal Locale::Tag::Posix.parse("ja_JP@0abc"), lang.to_posix
-
-    lang = Locale::Tag.parse("ja-y-aa-z-bbccdd-b-xxnnnnn")
-    assert_equal Locale::Tag::Rfc, lang.class
-    assert_equal "ja", lang.language
-    assert_equal nil, lang.region
-    assert_equal nil, lang.script
-    assert_equal [], lang.variants
-    assert_equal ["y-aa", "z-bbccdd", "b-xxnnnnn"], lang.extensions
-
-    assert_equal [Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                  Locale::Tag::Rfc.parse("ja"),
-                 ], lang.candidates
-
-    assert_equal Locale::Tag::Simple.parse("ja"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("ja"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("ja-y-aa-z-bbccdd-b-xxnnnnn"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("ja"), lang.to_cldr
-    assert_equal Locale::Tag::Posix.parse("ja"), lang.to_posix
-
+  def test_rfc_lang_script_region_variant_extension
     lang = Locale::Tag.parse("zh-Latn-CN-variant1-a-extend1")
     assert_equal Locale::Tag::Rfc, lang.class
     assert_equal "zh", lang.language
@@ -647,8 +604,89 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("zh-Latn-CN-variant1-a-extend1"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("zh_Latn_CN_VARIANT1"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("zh_CN@variant1"), lang.to_posix
+  end
 
-     #Privateuse
+  def test_rfc_lang_script_region_extensions
+    lang = Locale::Tag.parse("ja-Kana-JP-0abc-y-aa-z-bbccdd-b-nnnnnnnn")
+    assert_equal Locale::Tag::Rfc, lang.class
+    assert_equal "ja", lang.language
+    assert_equal "JP", lang.region
+    assert_equal "Kana", lang.script
+    assert_equal ["0abc"], lang.variants
+    assert_equal ["y-aa", "z-bbccdd", "b-nnnnnnnn"], lang.extensions
+
+    assert_equal [Locale::Tag::Rfc.parse("ja-Kana-JP-0abc"),
+                  Locale::Tag::Rfc.parse("ja-Kana-JP"),
+                  Locale::Tag::Rfc.parse("ja-JP-0abc"),
+                  Locale::Tag::Rfc.parse("ja-JP"),
+                  Locale::Tag::Rfc.parse("ja-Kana-0abc"),
+                  Locale::Tag::Rfc.parse("ja-Kana"),
+                  Locale::Tag::Rfc.parse("ja-0abc"),
+                  Locale::Tag::Rfc.parse("ja"),
+                 ], lang.candidates
+
+    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("ja-Kana-JP-0abc"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("ja-Kana-JP-0abc-y-aa-z-bbccdd-b-nnnnnnnn"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("ja_Kana_JP_0abc"), lang.to_cldr
+    assert_equal Locale::Tag::Posix.parse("ja_JP@0abc"), lang.to_posix
+  end
+
+  def test_rfc_lang_region_variants_extensions
+    lang = Locale::Tag.parse("ja-JP-0abc-y-aa-z-bbccdd-b-xxxnnnnn")
+    assert_equal Locale::Tag::Rfc, lang.class
+    assert_equal "ja", lang.language
+    assert_equal "JP", lang.region
+    assert_equal nil, lang.script
+    assert_equal ["0abc"], lang.variants
+    assert_equal ["y-aa", "z-bbccdd", "b-xxxnnnnn"], lang.extensions
+
+    assert_equal [Locale::Tag::Rfc.parse("ja-JP-0abc"),
+                  Locale::Tag::Rfc.parse("ja-JP"),
+                  Locale::Tag::Rfc.parse("ja-JP-0abc"),
+                  Locale::Tag::Rfc.parse("ja-JP"),
+                  Locale::Tag::Rfc.parse("ja-0abc"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja-0abc"),
+                  Locale::Tag::Rfc.parse("ja"),
+                 ], lang.candidates
+
+    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("ja-JP-0abc"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("ja-JP-0abc-y-aa-z-bbccdd-b-xxxnnnnn"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("ja_JP_0abc"), lang.to_cldr
+    assert_equal Locale::Tag::Posix.parse("ja_JP@0abc"), lang.to_posix
+
+  end
+
+  def test_rfc_lang_extensions
+    lang = Locale::Tag.parse("ja-y-aa-z-bbccdd-b-xxnnnnn")
+    assert_equal Locale::Tag::Rfc, lang.class
+    assert_equal "ja", lang.language
+    assert_equal nil, lang.region
+    assert_equal nil, lang.script
+    assert_equal [], lang.variants
+    assert_equal ["y-aa", "z-bbccdd", "b-xxnnnnn"], lang.extensions
+
+    assert_equal [Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                  Locale::Tag::Rfc.parse("ja"),
+                 ], lang.candidates
+
+    assert_equal Locale::Tag::Simple.parse("ja"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("ja"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("ja-y-aa-z-bbccdd-b-xxnnnnn"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("ja"), lang.to_cldr
+    assert_equal Locale::Tag::Posix.parse("ja"), lang.to_posix
+  end
+
+  def test_rfc_privateuse
+    #Privateuse
     lang = Locale::Tag.parse("zh-Latn-CN-variant1-a-extend1-x-wadegile-private1")
     assert_equal Locale::Tag::Rfc, lang.class
     assert_equal "zh", lang.language
@@ -673,7 +711,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("zh-Latn-CN-variant1-a-extend1-x-wadegile-private1"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("zh_Latn_CN_VARIANT1"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("zh_CN@variant1"), lang.to_posix
+  end
 
+  def test_rfc_cldr_conversion
     #Privateuse with x-ldml (CLDR conversion)
     lang = Locale::Tag.parse("en-US-x-ldml-POSIX-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar")
     assert_equal Locale::Tag::Rfc, lang.class
@@ -739,7 +779,7 @@ class TagTest < Test::Unit::TestCase
     lang.privateuse = "x-foooo"
     assert_equal "ja-Hira-JP-variant2-b-extend2-x-foooo", lang.to_s
 
-     assert_equal [Locale::Tag::Rfc.parse("ja-Hira-JP-variant2"),
+    assert_equal [Locale::Tag::Rfc.parse("ja-Hira-JP-variant2"),
                   Locale::Tag::Rfc.parse("ja-Hira-JP"),
                   Locale::Tag::Rfc.parse("ja-JP-variant2"),
                   Locale::Tag::Rfc.parse("ja-JP"),
@@ -750,7 +790,7 @@ class TagTest < Test::Unit::TestCase
                  ], lang.candidates
   end
 
-  def test_cldr
+  def test_cldr_lang_extensions
     lang = Locale::Tag.parse("de@collation=phonebook")
     assert_equal Locale::Tag::Cldr, lang.class
     assert_equal "de", lang.language
@@ -772,7 +812,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("de-k-collatio-phoneboo"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("de@collation=phonebook"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("de"), lang.to_posix
+  end
 
+  def test_cldr_lang_script_extension
     lang = Locale::Tag.parse("az_Arab@collation=phonebook")
     assert_equal Locale::Tag::Cldr, lang.class
     assert_equal "az", lang.language
@@ -796,6 +838,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.parse("az_Arab@collation=phonebook"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("az"), lang.to_posix
 
+  end
+
+  def test_cldr_lang_region_extensions
     lang = Locale::Tag.parse("de_DE@collation=phonebook;currency=DDM")
     assert_equal Locale::Tag::Cldr, lang.class
     assert_equal "de", lang.language
@@ -818,31 +863,6 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("de-DE-k-collatio-phoneboo-k-currency-DDM"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("de_DE@collation=phonebook;currency=DDM"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("de_DE"), lang.to_posix
-
-    lang = Locale::Tag.parse("en_US_POSIX@calendar=islamic;collation=traditional;colStrength=secondary")
-    assert_equal Locale::Tag::Cldr, lang.class
-    assert_equal "en", lang.language
-    assert_equal "US", lang.region
-    assert_equal ["POSIX"], lang.variants
-    assert_equal "islamic", lang.extensions["calendar"]
-    assert_equal "traditional", lang.extensions["collation"]
-    assert_equal "secondary", lang.extensions["colStrength"]
-
-    assert_equal [Locale::Tag::Cldr.parse("en_US_POSIX"),
-                  Locale::Tag::Cldr.parse("en_US"),
-                  Locale::Tag::Cldr.parse("en_US_POSIX"),
-                  Locale::Tag::Cldr.parse("en_US"),
-                  Locale::Tag::Cldr.parse("en_POSIX"),
-                  Locale::Tag::Cldr.parse("en"),
-                  Locale::Tag::Cldr.parse("en_POSIX"),
-                  Locale::Tag::Cldr.parse("en"),
-                 ], lang.candidates
-
-    assert_equal Locale::Tag::Simple.parse("en_US"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("en_US_POSIX"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("en-US-POSIX-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("en_US_POSIX@calendar=islamic;collation=traditional;colStrength=secondary"), lang.to_cldr
-    assert_equal Locale::Tag::Posix.parse("en_US@POSIX"), lang.to_posix
 
     lang = Locale::Tag.parse("en_US@calendar=islamic;collation=traditional;colStrength=secondary")
     assert_equal Locale::Tag::Cldr, lang.class
@@ -871,6 +891,33 @@ class TagTest < Test::Unit::TestCase
 
   end
 
+  def test_cldr_lang_region_variants_extensions
+    lang = Locale::Tag.parse("en_US_POSIX@calendar=islamic;collation=traditional;colStrength=secondary")
+    assert_equal Locale::Tag::Cldr, lang.class
+    assert_equal "en", lang.language
+    assert_equal "US", lang.region
+    assert_equal ["POSIX"], lang.variants
+    assert_equal "islamic", lang.extensions["calendar"]
+    assert_equal "traditional", lang.extensions["collation"]
+    assert_equal "secondary", lang.extensions["colStrength"]
+
+    assert_equal [Locale::Tag::Cldr.parse("en_US_POSIX"),
+                  Locale::Tag::Cldr.parse("en_US"),
+                  Locale::Tag::Cldr.parse("en_US_POSIX"),
+                  Locale::Tag::Cldr.parse("en_US"),
+                  Locale::Tag::Cldr.parse("en_POSIX"),
+                  Locale::Tag::Cldr.parse("en"),
+                  Locale::Tag::Cldr.parse("en_POSIX"),
+                  Locale::Tag::Cldr.parse("en"),
+                 ], lang.candidates
+
+    assert_equal Locale::Tag::Simple.parse("en_US"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("en_US_POSIX"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("en-US-POSIX-k-calendar-islamic-k-collatio-traditio-k-colStren-secondar"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("en_US_POSIX@calendar=islamic;collation=traditional;colStrength=secondary"), lang.to_cldr
+    assert_equal Locale::Tag::Posix.parse("en_US@POSIX"), lang.to_posix
+  end
+
   def test_cldr_writer
     lang = Locale::Tag.parse("en_US@calendar=islamic;colStrength=secondary")
     lang.language = "ja"
@@ -895,7 +942,7 @@ class TagTest < Test::Unit::TestCase
                  ], lang.candidates
   end
 
-  def test_posix
+  def test_posix_c_and_posix
     lang = Locale::Tag.parse("C")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "en", lang.language
@@ -939,7 +986,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("en-US"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("en_US"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("en_US"), lang.to_posix
+  end
 
+  def test_posix_irregular_format
     lang = Locale::Tag.parse("japanese.euc")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "japanese", lang.language
@@ -956,6 +1005,24 @@ class TagTest < Test::Unit::TestCase
                   Locale::Tag::Posix.parse("japanese"),
                  ], lang.candidates
 
+    lang = Locale::Tag.parse("univ.utf8")
+    assert_equal Locale::Tag::Posix, lang.class
+    assert_equal "univ", lang.language
+    assert_equal nil, lang.region
+    assert_equal "utf8", lang.charset
+
+    assert_equal [Locale::Tag::Posix.parse("univ.utf8"),
+                  Locale::Tag::Posix.parse("univ.utf8"),
+                  Locale::Tag::Posix.parse("univ"),
+                  Locale::Tag::Posix.parse("univ"),
+                  Locale::Tag::Posix.parse("univ.utf8"),
+                  Locale::Tag::Posix.parse("univ.utf8"),
+                  Locale::Tag::Posix.parse("univ"),
+                  Locale::Tag::Posix.parse("univ"),
+                 ], lang.candidates
+  end
+
+  def test_posix_lang_charset
     lang = Locale::Tag.parse("es.iso885915")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "es", lang.language
@@ -978,7 +1045,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.parse("es"), lang.to_rfc
     assert_equal Locale::Tag::Cldr.parse("es"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("es.iso885915"), lang.to_posix
+  end
 
+  def test_posix_lang_region_charset
     lang = Locale::Tag.parse("es_ES.iso885915")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "es", lang.language
@@ -1002,6 +1071,30 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.parse("es_ES"), lang.to_cldr
     assert_equal Locale::Tag::Posix.parse("es_ES.iso885915"), lang.to_posix
 
+    lang = Locale::Tag.parse("ja_JP.UTF-8")
+    assert_equal Locale::Tag::Posix, lang.class
+    assert_equal "ja", lang.language
+    assert_equal "JP", lang.region
+    assert_equal "UTF-8", lang.charset
+
+    assert_equal [Locale::Tag::Posix.parse("ja_JP.UTF-8"),
+                  Locale::Tag::Posix.parse("ja_JP.UTF-8"),
+                  Locale::Tag::Posix.parse("ja_JP"),
+                  Locale::Tag::Posix.parse("ja_JP"),
+                  Locale::Tag::Posix.parse("ja.UTF-8"),
+                  Locale::Tag::Posix.parse("ja.UTF-8"),
+                  Locale::Tag::Posix.parse("ja"),
+                  Locale::Tag::Posix.parse("ja"),
+                 ], lang.candidates
+
+    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
+    assert_equal Locale::Tag::Common.parse("ja_JP"), lang.to_common
+    assert_equal Locale::Tag::Rfc.parse("ja-JP"), lang.to_rfc
+    assert_equal Locale::Tag::Cldr.parse("ja_JP"), lang.to_cldr 
+    assert_equal Locale::Tag::Posix.parse("ja_JP.UTF-8"), lang.to_posix
+  end
+
+  def test_posix_lang_modifier
     lang = Locale::Tag.parse("es@euro")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "es", lang.language
@@ -1026,7 +1119,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Rfc.new("es", nil, nil, ["euro"]), lang.to_rfc
     assert_equal Locale::Tag::Cldr.new("es", nil, nil, ["euro"]), lang.to_cldr 
     assert_equal Locale::Tag::Posix.parse("es@euro"), lang.to_posix
+  end
 
+  def test_posix_lang_region_modifier
     lang = Locale::Tag.parse("es_ES@euro")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "es", lang.language
@@ -1050,6 +1145,9 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.new("es", nil, "ES", ["EURO"]), lang.to_cldr 
     assert_equal Locale::Tag::Posix.parse("es_ES@euro"), lang.to_posix
 
+  end
+
+  def test_posix_lang_region_charset_modifier
     lang = Locale::Tag.parse("es_ES.iso885915@euro")
     assert_equal Locale::Tag::Posix, lang.class
     assert_equal "es", lang.language
@@ -1073,43 +1171,6 @@ class TagTest < Test::Unit::TestCase
     assert_equal Locale::Tag::Cldr.new("es", nil, "ES", ["EURO"]), lang.to_cldr 
     assert_equal Locale::Tag::Posix.parse("es_ES.iso885915@euro"), lang.to_posix
 
-    lang = Locale::Tag.parse("univ.utf8")
-    assert_equal Locale::Tag::Posix, lang.class
-    assert_equal "univ", lang.language
-    assert_equal nil, lang.region
-    assert_equal "utf8", lang.charset
-
-    assert_equal [Locale::Tag::Posix.parse("univ.utf8"),
-                  Locale::Tag::Posix.parse("univ.utf8"),
-                  Locale::Tag::Posix.parse("univ"),
-                  Locale::Tag::Posix.parse("univ"),
-                  Locale::Tag::Posix.parse("univ.utf8"),
-                  Locale::Tag::Posix.parse("univ.utf8"),
-                  Locale::Tag::Posix.parse("univ"),
-                  Locale::Tag::Posix.parse("univ"),
-                 ], lang.candidates
-
-    lang = Locale::Tag.parse("ja_JP.UTF-8")
-    assert_equal Locale::Tag::Posix, lang.class
-    assert_equal "ja", lang.language
-    assert_equal "JP", lang.region
-    assert_equal "UTF-8", lang.charset
-
-    assert_equal [Locale::Tag::Posix.parse("ja_JP.UTF-8"),
-                  Locale::Tag::Posix.parse("ja_JP.UTF-8"),
-                  Locale::Tag::Posix.parse("ja_JP"),
-                  Locale::Tag::Posix.parse("ja_JP"),
-                  Locale::Tag::Posix.parse("ja.UTF-8"),
-                  Locale::Tag::Posix.parse("ja.UTF-8"),
-                  Locale::Tag::Posix.parse("ja"),
-                  Locale::Tag::Posix.parse("ja"),
-                 ], lang.candidates
-
-    assert_equal Locale::Tag::Simple.parse("ja_JP"), lang.to_simple
-    assert_equal Locale::Tag::Common.parse("ja_JP"), lang.to_common
-    assert_equal Locale::Tag::Rfc.parse("ja-JP"), lang.to_rfc
-    assert_equal Locale::Tag::Cldr.parse("ja_JP"), lang.to_cldr 
-    assert_equal Locale::Tag::Posix.parse("ja_JP.UTF-8"), lang.to_posix
   end
 
   def test_posix_writer
