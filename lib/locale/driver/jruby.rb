@@ -22,21 +22,15 @@ module Locale
     module JRuby
       $stderr.puts self.name + " is loaded." if $DEBUG
 
-      if java.lang.System.getProperties['os.name'].downcase =~ /windows/
-        require 'locale/driver/win32_table'
-        
-        extend ::Locale::Driver::Win32Table
-      end
-      
       module_function
       def locales  #:nodoc:
         locales = ::Locale::Driver::Env.locales
         unless locales
           locale = java.util.Locale.getDefault
-          variant = Locale.getVariant 
+          variant = locale.getVariant 
           variants = []
-          if valiant != nil and variant.size > 0
-            valiants = [valiant]
+          if variant != nil and variant.size > 0
+            variants = [variant]
           end
           locales = TagList.new([Locale::Tag::Common.new(locale.getLanguage, nil,
                                                          locale.getCountry, 
@@ -45,7 +39,7 @@ module Locale
         locales
       end
 
-      def charset
+      def charset #:nodoc:
         charset = ::Locale::Driver::Env.charset
         unless charset
           charset = java.nio.charset.Charset.defaultCharset.name
