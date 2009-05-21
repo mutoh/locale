@@ -7,6 +7,6 @@
   license terms as Ruby.
 =end
 module Locale
-  VERSION = "2.0.3"
+  VERSION = "2.0.4"
 end
 

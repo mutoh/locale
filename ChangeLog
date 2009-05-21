@@ -1,3 +1,9 @@
+= locale-2.0.4 (2009-05-22)
+ * Enhance Win32 support. [Reported by Dice]
+ * Enhance JRuby support
+ * Fixed a waring with ruby -d option.
+ * Update version.
+
 = locale-2.0.3 (2009-05-09)
  * Update version.
 
