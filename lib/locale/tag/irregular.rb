@@ -19,7 +19,7 @@ module Locale
 
       def initialize(tag)
         tag = "en" if tag == nil or tag == ""
-        super(tag)
+        super(tag.to_s)
         @tag = tag
       end
 
