@@ -55,8 +55,8 @@ The most important APIs are defined in Locale module.
 * Locale.set_app_language_tags - Sets the locale that is supported by the App.
 
 == License
-This program is licenced under the same licence as Ruby.
-(See the file 'COPYING'.)
+This program is licenced under the same licence as Ruby(See COPYING) or
+LGPL(Lesser General Public License: http://www.gnu.org/licenses/lgpl-3.0.txt).
 
 * locale/language.rb, locale/region.rb, 
   locale/data/language.tab.gz, locale/data/region.tab.gz:
