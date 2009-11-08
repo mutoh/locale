@@ -61,14 +61,14 @@ LGPL(Lesser General Public License: http://www.gnu.org/licenses/lgpl-3.0.txt).
 * locale/language.rb, locale/region.rb, 
   locale/data/language.tab.gz, locale/data/region.tab.gz:
   * Copyright (C) 2006 Brian Pontarelli, Antonio Terceiro
-  * Copyright (C) 2008 Masao Mutoh <mutomasa at gmail.com>
+  * Copyright (C) 2008,2009 Masao Mutoh <mutomasa at gmail.com>
 
 * setup.rb version 3.4.1
   * Copyright (C) 2000-2005 Minero Aoki <aamine at loveruby.net>
   * This file is released under LGPL. See the top of the setup.rb.
 
 * Others(Some files are separated from Ruby-GetText-Package-1.92.0)
-  * Copyright (C) 2008 Masao Mutoh <mutoh at highwhay.ne.jp>
+  * Copyright (C) 2008,2009 Masao Mutoh <mutoh at highwhay.ne.jp>
 
 == References
 === Other libraries
