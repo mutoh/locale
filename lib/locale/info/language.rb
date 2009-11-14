@@ -74,7 +74,11 @@ module Locale
 
       # Returns the two or three code.
       def to_s
-        two_code || three_code
+        if two_code and two_code.size > 0
+          two_code
+        else
+          three_code
+        end
       end
 
       # Returns this object is valid as ISO 639 data.

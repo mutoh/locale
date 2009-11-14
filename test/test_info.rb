@@ -10,6 +10,7 @@ class TestLocaleInfo < Test::Unit::TestCase
     assert_equal "English", langs["eng"].name
     assert langs["eng"].living?
     assert langs["eng"].individual?
+    assert "ace", langs["ace"].to_s
 
     langs = Locale::Info.two_languages
     assert_equal 185, langs.length
