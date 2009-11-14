@@ -236,9 +236,11 @@ module Locale
     end
 
     tags = []
-    (0...candidate_tags[0].size).each {|i|
-      tags += candidate_tags.collect{|v| v[i]}
-    }
+    unless candidate_tags.empty?
+      (0...candidate_tags[0].size).each {|i|
+        tags += candidate_tags.collect{|v| v[i]}
+      }
+    end
     tags += default_tags
     tags.uniq!
 
