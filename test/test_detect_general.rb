@@ -102,6 +102,35 @@ class TestDetectGeneral < Test::Unit::TestCase
     assert_equal "Shift_JIS", Locale.charset
   end
 
+  def test_language_strip
+    ENV["LC_ALL"] = "ja_JP.Shift_JIS"
+    ENV["LANGUAGE"] = nil
+
+    tags = Locale.current
+    assert_equal 1, tags.size
+    assert_equal Locale::Tag::Posix, tags[0].class
+    assert_equal "ja", tags.language
+    assert_equal "ja", tags[0].language
+    Locale.clear
+    ENV["LANGUAGE"] = ""
+
+    tags = Locale.current
+    assert_equal 1, tags.size
+    assert_equal Locale::Tag::Posix, tags[0].class
+    assert_equal "ja", tags.language
+    assert_equal "ja", tags[0].language
+    Locale.clear
+    ENV["LANGUAGE"] = "zh_CN.UTF-8:ja_JP"
+
+    tags = Locale.current
+    assert_equal 2, tags.size
+    assert_equal Locale::Tag::Posix, tags[0].class
+    assert_equal Locale::Tag::Posix, tags[1].class
+    assert_equal "zh", tags.language
+    assert_equal "zh", tags[0].language
+    assert_equal "ja", tags[1].language
+  end
+
   def test_no_charset
     ENV["LC_ALL"] = "cs_CZ"
 

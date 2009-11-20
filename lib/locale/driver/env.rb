@@ -39,7 +39,8 @@ module Locale
       # Gets the locales from environment variables. (LANGUAGE > LC_ALL > LC_MESSAGES > LANG)
       # * Returns: an Array of the locale as Locale::Tag::Posix or nil.
       def locales
-        if (locales = ENV["LANGUAGE"])
+        locales = ENV["LANGUAGE"]
+        if (locales != nil and locales.size > 0)
           Locale::TagList.new(locales.split(/:/).collect{|v| Locale::Tag::Posix.parse(v)})
         elsif (loc = locale)
           Locale::TagList.new([loc])
