@@ -1,7 +1,7 @@
 =begin
   locale/win32.rb
 
-  Copyright (C) 2002-2008  Masao Mutoh
+  Copyright (C) 2002-2010  Masao Mutoh
 
   You may redistribute it and/or modify it under the same
   license terms as Ruby.
@@ -13,8 +13,10 @@
 
 require File.join(File.dirname(__FILE__), 'env')
 require File.join(File.dirname(__FILE__), 'win32_table')
-require 'dl/win32'
 
+unless Win32API
+  require 'dl/win32'
+end
 
 module Locale
   # Locale::Driver::Win32 module for win32.
