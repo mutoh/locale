@@ -11,7 +11,7 @@ handle major locale ID standards.
   * POSIX, CLDR, IETF(RFC4646, 3066(BCP47)), Win32 and Java language tags 
     and convert the tag string to each other.
   * Auto detect Locale ID.
-    POSIX(Unix/Linux/*BSD), Win32, JRuby, CGI.
+    POSIX(Unix/Linux/*BSD), Win32, JRuby, CGI(CGI, Rack, others).
 
 * Resources
   * ISO 639-3 languages
