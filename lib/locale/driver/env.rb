@@ -41,12 +41,14 @@ module Locale
       def locales
         locales = ENV["LANGUAGE"]
         if (locales != nil and locales.size > 0)
-          Locale::TagList.new(locales.split(/:/).collect{|v| Locale::Tag::Posix.parse(v)})
+          locs = locales.split(/:/).collect{|v| Locale::Tag::Posix.parse(v)}.compact
+          if locs.size > 0
+            return Locale::TagList.new(locs)
+          end
         elsif (loc = locale)
-          Locale::TagList.new([loc])
-        else
-          nil
+          return Locale::TagList.new([loc])
         end
+        nil
       end
 
       # Gets the charset from environment variable or return nil.

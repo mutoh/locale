@@ -178,6 +178,24 @@ class TestDetectGeneral < Test::Unit::TestCase
     Locale.set_default(nil)
   end
 
+  def test_wrong_envs
+    ENV["LC_ALL"] = nil
+    ENV["LANGUAGE"] = "g"
+    Locale.default = "de"
+    assert_equal Locale::Tag.parse("de"), Locale.current[0]
+
+    ENV["LC_ALL"] = "f"
+    ENV["LANGUAGE"] = nil
+    Locale.default = "fr"
+    assert_equal Locale::Tag.parse("fr"), Locale.current[0]
+
+    ENV["LC_ALL"] = "j"
+    ENV["LANGUAGE"] = nil
+    Locale.default = nil
+    assert_equal Locale::Tag.parse("en"), Locale.current[0]
+
+  end
+
   def test_clear
     ENV["LC_ALL"] = "ja_JP.Shift_JIS"
     ENV["LANGUAGE"] = nil
