@@ -213,4 +213,12 @@ class TestDetectCGI < Test::Unit::TestCase
     Locale.default = "en"
     Locale.set_app_language_tags(nil)
   end
+
+  def test_request
+    Locale.set_request(["ja"], [""], "", "")
+    assert_equal common("ja", "en"), Locale.candidates
+
+    Locale.set_request(["en"], [""], "", "")
+    assert_equal common("en"), Locale.candidates #Cache should be cleared.
+  end
 end

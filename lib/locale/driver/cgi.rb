@@ -81,6 +81,7 @@ module Locale
      # * accept_language: The value of HTTP_ACCEPT_LANGUAGE
      # * accept_charset: The value of HTTP_ACCEPT_CHARSET
      def set_request(query_langs, cookie_langs, accept_language, accept_charset)
+       Locale.clear
        Thread.current[:current_request] = {
          :query_langs => query_langs, 
          :cookie_langs => cookie_langs, 
