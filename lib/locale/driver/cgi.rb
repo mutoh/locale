@@ -50,6 +50,8 @@ module Locale
         unless locales.size > 0
           # HTTP_ACCEPT_LANGUAGE
           if lang = req[:accept_language] and lang.size > 0
+            # 10.0 is for ruby-1.8.6 which have the bug of str.to_f. 
+            # Normally, this should be 1.0.
             locales += lang.gsub(/\s/, "").split(/,/).map{|v| v.split(";q=")}.map{|j| [j[0], j[1] ? j[1].to_f : 10.0]}.sort{|a,b| -(a[1] <=> b[1])}.map{|v| Locale::Tag.parse(v[0])}
           end
         end
