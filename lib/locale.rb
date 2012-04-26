@@ -29,7 +29,7 @@ module Locale
 
   module_function
   def require_driver(name)  #:nodoc:
-    require File.join(ROOT, "locale/driver", name.to_s)
+    require File.join(ROOT, "locale/driver", name.to_s).untaint
   end
 
   def create_language_tag(tag)  #:nodoc:
