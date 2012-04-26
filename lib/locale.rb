@@ -36,6 +36,8 @@ module Locale
     if tag
       if tag.kind_of? Locale::Tag::Simple
         tag
+      elsif tag.kind_of? Locale::TagList
+        tag[0]
       else
         Locale::Tag.parse(tag)
       end
