@@ -30,9 +30,9 @@ module Locale
       end
 
       def self.parse(tag)
-        if tag =~ /^(C|POSIX)$/
-          ret = self.new("en", "US")
-          ret.tag = tag
+        if tag =~ /\A(C|POSIX)(?:\.([^@]+))?\Z/
+          ret = self.new("en", "US", $2)
+          ret.tag = $1
           ret
         elsif tag =~ TAG_RE
           ret = self.new($1, $2, $3, $4)
@@ -47,10 +47,15 @@ module Locale
       #   <language>_<COUNTRY>.<CHARSET>@<MODIFIER>
       #   (e.g.) "ja_JP.EUC-JP@Modifier"
       def to_s
-        s = @language.dup
-        s << "_#{@region}" if @region
-        s << ".#{@charset}" if @charset
-        s << "@#{@modifier}" if @modifier
+        if posix?
+          s = tag.dup
+          s << ".#{@charset}" if @charset
+        else
+          s = @language.dup
+          s << "_#{@region}" if @region
+          s << ".#{@charset}" if @charset
+          s << "@#{@modifier}" if @modifier
+        end
         s
       end
 
@@ -90,6 +95,10 @@ module Locale
         else
           klass.new(language, nil, region, modifier ? [modifier] : [])
         end
+      end
+
+      def posix?
+        ['POSIX', 'C'].include? tag
       end
 
     end

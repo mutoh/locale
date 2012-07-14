@@ -29,13 +29,15 @@ module Locale
 
   module_function
   def require_driver(name)  #:nodoc:
-    require File.join(ROOT, "locale/driver", name.to_s)
+    require File.join(ROOT, "locale/driver", name.to_s).untaint
   end
 
   def create_language_tag(tag)  #:nodoc:
     if tag
       if tag.kind_of? Locale::Tag::Simple
         tag
+      elsif tag.kind_of? Locale::TagList
+        tag[0]
       else
         Locale::Tag.parse(tag)
       end

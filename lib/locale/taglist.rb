@@ -46,11 +46,7 @@ module Locale
     end
     # Returns the top priority charset. (posix)
     def charset
-      if self[0].respond_to? :charset
-        self[0].charset
-      else
-        ::Locale.driver_module.charset
-      end
+      self[0].respond_to?(:charset) and self[0].charset or ::Locale.driver_module.charset
     end
     memoize :charset
 
